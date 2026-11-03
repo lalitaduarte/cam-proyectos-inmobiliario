@@ -66,7 +66,7 @@ if (yaExiste) console.log('2. cam_db ya tiene las tablas de CAM: no se modifica 
 else paso('2. Estructura SIN datos de demostración (como cam_admin)', () => psql('cam_admin', pwAdmin, 'cam_db', ['-v', 'sin_demo=1', '-f', 'sql/ejecutar_todo.sql']));
 
 // 4. Cadena de conexión de la aplicación (cam_app) para Render.
-const urlApp = `postgresql://cam_app:${encodeURIComponent(pwApp)}@${host}/cam_db?sslmode=require`;
+const urlApp = `postgresql://cam_app:${encodeURIComponent(pwApp)}@${host}:5432/cam_db?sslmode=verify-full`;   // puerto explícito: si no, pg tomaría PGPORT local
 const contenido = fs.readFileSync(ENV, 'utf8');
 if (/^NEON_DATABASE_URL=/m.test(contenido)) fs.writeFileSync(ENV, contenido.replace(/^NEON_DATABASE_URL=.*$/m, `NEON_DATABASE_URL=${urlApp}`));
 else fs.appendFileSync(ENV, `\nNEON_DATABASE_URL=${urlApp}\n`);
@@ -84,4 +84,4 @@ console.log('3. NEON_DATABASE_URL guardada en .env (es el valor de DATABASE_URL 
   console.log(`4. Conexión como la aplicación: usuario ${r.usuario}, superusuario: ${r.superusuario ? 'SÍ (MAL)' : 'no'}, zona ${r.zona}, esquema ${r.ruta}.`);
   console.log(`   ${r.version.split(',')[0]} · ${r.pagos} pagos · ${r.usuarios} usuarios · puede borrar pagos: ${r.puede_borrar_pagos ? 'SÍ (MAL)' : 'no'}.`);
   if (r.usuarios === '0') console.log('   Falta la cuenta de la secretaria de producción: npm.cmd run neon:crear-secretaria -- usuario Nombre');
-})().catch((e) => { console.error(`La comprobación falló: ${e.message}`); process.exit(1); });
+})().catch((e) => { console.error(`La comprobación falló: ${e.message || e.code || (e.errors || []).map((x) => x.message).join(" / ") || e}`); process.exit(1); });

@@ -12,7 +12,7 @@ const neon = process.argv.includes('--neon');
 if (neon) {
   exigir('NEON_DATABASE_URL', 'NEON_CAM_ADMIN_PASSWORD');
   Object.assign(process.env, {
-    PGHOST: new URL(process.env.NEON_DATABASE_URL).hostname, PGPORT: '5432', PGSSLMODE: 'require',
+    PGHOST: new URL(process.env.NEON_DATABASE_URL).hostname, PGPORT: new URL(process.env.NEON_DATABASE_URL).port || '5432', PGSSLMODE: 'require',
     CAM_DB: 'cam_db', CAM_ADMIN_USER: 'cam_admin', CAM_ADMIN_PASSWORD: process.env.NEON_CAM_ADMIN_PASSWORD,
   });
 }
