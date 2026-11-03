@@ -1,0 +1,18 @@
+{
+  "momento": "2026-11-03_0634",
+  "inicioServidor": "2026-11-02 14:46:51",
+  "huellas": {
+    "adquisicion": "9 513c90a27208bbb33566d75e9925e4fc",
+    "comprobante": "11 d127f46d879d30ba87b8a08409616bdf",
+    "consecutivo_comprobante": "1 119c1f7e72027c4a1133d949da438612",
+    "envio_comprobante": "0 -",
+    "mensaje": "5 e5b2af55a16b541d95cf39edc0c28901",
+    "oferta": "4 cc0ae72d5c56d8bfb769805b2b9198dc",
+    "pago": "54 b30be366d6c4275d3972566ea8aacbf3",
+    "parametro_accion": "1 b8e5e58e79818842f7501013100ad03f",
+    "propietario": "8 be02312aa9da8204a3158bfe8d9d08bc",
+    "semana": "52 4a1a8e19b0d753b0bd78a1af3fee0318",
+    "semana_fecha": "52 408319af820d96dd263e9d9983dbf248",
+    "usuario": "9 10878b58de7be475fc277b85b50dc0f3"
+  }
+}

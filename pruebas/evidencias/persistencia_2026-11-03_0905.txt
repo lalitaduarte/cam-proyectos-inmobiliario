@@ -1,0 +1,20 @@
+Prueba de persistencia tras reiniciar PostgreSQL — 2026-11-03 0905 (hora de Colombia)
+Base: cam_db. Huella tomada antes: 2026-11-03 0634
+PostgreSQL encendido desde: antes 2026-11-02 14:46:51 · después 2026-11-03 09:04:47 → SÍ se reinició
+
+IGUAL      adquisicion                  9 → 9 filas
+IGUAL      comprobante                 11 → 11 filas
+IGUAL      consecutivo_comprobante      1 → 1 filas
+IGUAL      envio_comprobante            0 → 0 filas
+IGUAL      mensaje                      5 → 5 filas
+IGUAL      oferta                       4 → 4 filas
+IGUAL      pago                        54 → 54 filas
+IGUAL      parametro_accion             1 → 1 filas
+IGUAL      propietario                  8 → 8 filas
+IGUAL      semana                      52 → 52 filas
+IGUAL      semana_fecha                52 → 52 filas
+IGUAL      usuario                      9 → 9 filas
+
+Aplicación en http://localhost:3100: respondió correctamente sin reiniciarla
+
+RESULTADO: LOS DATOS PERSISTEN — 12/12 tablas idénticas después del reinicio.

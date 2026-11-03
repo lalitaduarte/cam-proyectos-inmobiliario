@@ -1,0 +1,22 @@
+Prueba de restauración CAM — 2026-11-03 0609 (hora de Colombia)
+Respaldo: cam_db_2026-11-03_0608.dump · restaurado en "cam_test" en 1.5 s
+
+IGUAL      adquisicion                   9 filas
+IGUAL      auditoria                   132 filas
+IGUAL      comprobante                  11 filas
+IGUAL      consecutivo_comprobante       1 filas
+IGUAL      envio_comprobante             0 filas
+IGUAL      mensaje                       5 filas
+IGUAL      oferta                        4 filas
+IGUAL      pago                         54 filas
+IGUAL      parametro_accion              1 filas
+IGUAL      propietario                   8 filas
+IGUAL      semana                       52 filas
+IGUAL      semana_fecha                 52 filas
+IGUAL      usuario                       9 filas
+
+Objetos en cam_db: 10 vistas, 23 funciones, 7 triggers
+Objetos en cam_test: 10 vistas, 23 funciones, 7 triggers
+Permisos de cam_app restaurados (lee pagos, no puede borrarlos): sí
+
+RESULTADO: RESTAURACIÓN CORRECTA — 13/13 tablas idénticas.

@@ -1,0 +1,25 @@
+RECORRIDO COMPLETO DESDE LAS PANTALLAS · CAM · 2026-11-03 03:09:52
+Comando: npm.cmd run test:navegador · Chrome headless sin ventana, perfil temporal
+Servidor real (puerto 3199) contra cam_test. Tamaños: computador 1366x900 y teléfono 390x844 (ancho fijo). Modos claro y oscuro.
+Capturas: pruebas/evidencias/capturas/
+
+ok 1 - Ingreso incorrecto muestra un mensaje claro
+ok 2 - Ingreso de la secretaria y panel con cifras calculadas
+ok 3 - Propietarios: registro con contraseña temporal y rechazo de cédula duplicada
+ok 4 - Asignar semana en dos pasos (resumen y confirmación)
+ok 5 - Pagos: importe incorrecto rechazado; registrar, verificar y emitir comprobante
+ok 6 - Comprobante: PDF disponible y listado
+ok 7 - Estado de cuenta (DEMO Ana, semana 5): $7.500.000 abonados, 14 pendientes, saldo $10.500.000
+ok 8 - Reportes: consultar y exportar a Excel con los mismos filtros
+ok 9 - Semanas: fechas inválidas rechazadas y fechas válidas guardadas
+ok 10 - Parámetros y supervisión de la comunidad cargan
+ok 11 - Cerrar sesión
+ok 12 - Propietario: solo ve la comunidad; las rutas administrativas lo devuelven a ella
+ok 13 - Propietario: publica una venta (precio 0 rechazado), conversa y la retira
+ok 14 - Propietario nuevo: la contraseña temporal obliga a cambiarla
+# Subtest: Sin errores de JavaScript ni violaciones de seguridad en la consola
+ok 15 - Sin errores de JavaScript ni violaciones de seguridad en la consola
+# tests 15
+# pass 15
+# fail 0
+# duration_ms 55528.8593

@@ -1,0 +1,23 @@
+# Configuración de publicación en Render (Blueprint).
+# Render lee este archivo al crear el servicio con "New > Blueprint".
+# Los secretos NO están aquí:
+#   - SESSION_SECRET lo genera Render al azar.
+#   - DATABASE_URL se escribe en el panel de Render al crear el Blueprint
+#     (valor de NEON_DATABASE_URL del .env local, conexión de cam_app a Neon).
+# La versión de Node se fija en el archivo .node-version (22).
+services:
+  - type: web
+    name: cam-proyectos
+    runtime: node
+    plan: free
+    region: virginia            # misma zona que la base en Neon (AWS us-east-1) para menor latencia
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/salud # Render comprueba que la app y la base respondan
+    envVars:
+      - key: NODE_ENV
+        value: production       # cookie solo por HTTPS, confía en el proxy de Render
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
