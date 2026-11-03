@@ -14,3 +14,6 @@ respaldos/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Archivos temporales de diagnóstico
+*.tmp.js
