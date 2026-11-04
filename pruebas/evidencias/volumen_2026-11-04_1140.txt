@@ -1,0 +1,22 @@
+Prueba de volumen CAM — 2026-11-04 11:40 (hora de Colombia)
+Base: cam_test · Servidor real en http://localhost:3199 · peor tiempo de 3 intentos
+Datos: 200 propietarios, 52 adquisiciones, 1248 cuotas, 489 comprobantes
+
+Operación                                              Tiempo     Meta   Filas
+Carga de volumen (funciones de negocio)              16160 ms        —       —
+Panel principal (indicadores y gráfico)                555 ms      3 s       —
+Listado de propietarios                                 52 ms      3 s     200
+Búsqueda de propietario por cédula                      25 ms      3 s       1
+Semanas con titular                                     30 ms      3 s       —
+Adquisiciones                                           32 ms      3 s      52
+Historial de pagos de un propietario                    59 ms      3 s      48
+Últimos 5.000 pagos (todos)                            321 ms      3 s    1249
+Estado de cuenta individual                             23 ms      3 s      24
+Comprobantes                                            47 ms      3 s     489
+Reporte: recaudo mensual                                32 ms      3 s      34
+Reporte: saldos por adquisición                         48 ms      3 s      52
+Reporte: pagos por verificar                            49 ms      3 s     124
+Reporte: sin pago en el mes                             32 ms      3 s       0
+Reporte: historial completo de pagos                   178 ms      3 s    1249
+Excel: historial de pagos (todo)                      2677 ms     10 s    1249
+Excel: historial de pagos (verificados)               1997 ms     10 s    1124

@@ -113,7 +113,7 @@ Según el encargo, **no se reutilizan** el enlace publicado (`cam-facturacion-1.
 | C9 | Comprobante para cualquier pago registrado. El ejemplo muestra un pago VERIFICADO | Resuelta en D3: comprobante solo para pagos verificados |
 | C10 | "Recaudo mensual: propietarios con cuota pendiente en el mes" (FUN-EDC-02) suena a mora, pero su criterio es "sin pago registrado en ese periodo" | Se muestra como **"Adquisiciones sin pago registrado en el mes"**. No se llama "vencida". La mora queda pendiente de calendario (D6) |
 | C11 | RNF-SEG-02 pide que "el rol de propietario" no consulte la tabla de pagos. Los propietarios **no** son usuarios de base de datos | Se cumple en dos niveles: el backend responde 403, y `cam_app` es el único usuario técnico, con privilegios mínimos |
-| C12 | El procedimiento de transferencia figura en [PL] pero su política de saldos está "por confirmar" | **No se implementa** en esta versión. El modelo conserva el historial para agregarla después |
+| C12 | El procedimiento de transferencia figura en [PL] pero su política de saldos está "por confirmar" | **Resuelta el 2026-11-04 con D16**: el nuevo titular asume el saldo. Implementado (sección 14) |
 
 ---
 
@@ -122,7 +122,7 @@ Según el encargo, **no se reutilizan** el enlace publicado (`cam-facturacion-1.
 - **Una** vivienda turística dividida en semanas.
 - Roles: **SECRETARIA** (administradora) y **PROPIETARIO**.
 - Módulos: inicio de sesión, panel, propietarios, semanas, adquisiciones, pagos, comprobantes (PDF e impresión), estado de cuenta, recaudo y reportes (Excel), parámetros, comunidad (ofertas y mensajes).
-- Fuera de alcance: facturación electrónica DIAN, integración bancaria, intereses de mora, pagos en línea, transferencias de titularidad, abonos parciales.
+- Fuera de alcance: facturación electrónica DIAN, integración bancaria, intereses de mora, pagos en línea, abonos parciales. (Las transferencias de titularidad se agregaron el 2026-11-04, decisión D16.)
 
 ### Arquitectura propuesta
 - **Backend**: Node.js + Express. Conexión con `pg`. Sesiones con cookie segura guardadas en PostgreSQL. Contraseñas con `bcrypt`. PDF con `pdfkit`. Excel con `exceljs`.
@@ -172,6 +172,7 @@ CAM/
 | D13 | Propietario inactivo | No inicia sesión ni publica ofertas. Conserva adquisiciones e historial |
 | D14 | Varias secretarias | Se permiten varias cuentas con el mismo rol. Cada operación registra quién la hizo |
 | D15 | Revertir verificación | Solo si el pago no tiene comprobante. Queda registrado quién revirtió y cuándo |
+| D16 | Cambio de titular (cesión, venta, intercambio) | **Aprobada por la docente (2026-11-04)**: el **nuevo titular asume el saldo**. Los pagos hechos quedan en el historial del titular anterior y cuentan para el plan; ninguna cuota se cobra dos veces. Solo la secretaria lo registra, con soporte obligatorio |
 
 ---
 
@@ -193,7 +194,8 @@ CAM/
 | 3. Backend | Conexión, autenticación, permisos, operaciones, reportes | **Completa** (sección 11) |
 | 4. Frontend | Pantallas conectadas, diseño para celular | **Completa** (sección 12) |
 | 5. Validación y documentación | Pruebas, manuales, respaldo y restauración | **Completa** (sección 13) |
-| 6. Publicación | Render + Neon, HTTPS, prueba desde otro dispositivo | Pendiente |
+| 6. Publicación | Render + Neon, HTTPS, prueba desde otro dispositivo | **En curso** (publicada en https://cam-proyectos.onrender.com) |
+| Ampliación | Cambio de titular (D16) y pantalla de auditoría | **Implementada y probada en local** (sección 14) |
 
 ---
 
@@ -430,3 +432,40 @@ Problemas encontrados en la revisión visual y corregidos:
 - Revisión del texto del aviso de privacidad por parte de CAM.
 - Primer commit en Git (con autorización).
 - Etapa 6: publicación, disponibilidad, respaldo en Neon y prueba desde un teléfono real.
+
+---
+
+## 14. Ampliación — Cambio de titular y auditoría (2026-11-04)
+
+Solicitud de la docente: auditar las ventas y cesiones entre propietarios, ver los pagos pendientes y consultar el historial.
+
+### 14.1. Lo que ya existía (comprobado en el código)
+- **Pagos pendientes**: estado de cuenta por adquisición (cuotas pagadas, pendientes y saldo) y reporte "sin pago registrado en el mes".
+- **Historial de pagos**: los pagos no se borran; las anulaciones guardan motivo, usuario y fecha.
+- **Auditoría**: la tabla `auditoria` ya registraba las operaciones, pero no había pantalla para consultarla.
+
+### 14.2. Qué se construyó
+| Pieza | Detalle |
+|---|---|
+| `sql/08_transferencias_auditoria.sql` | Script **incremental** (se puede repetir; no borra datos). Columnas `origen` y `adquisicion_anterior_id` en `adquisicion`; función `fn_transferir_titularidad`; vistas `v_adquisicion_linaje`, `v_historial_titulares` y `v_auditoria_detalle`; las vistas de saldo suman los pagos de toda la cadena de titulares. Lo llama `ejecutar_todo.sql` |
+| Regla en la base | Solo la secretaria; no con pagos sin verificar; fecha no futura ni anterior a la adquisición o a los pagos del titular actual; soporte obligatorio; el titular anterior queda TRANSFERIDA; las ofertas activas se cierran; los pagos de titulares anteriores ya no se anulan ni se revierten; una titularidad transferida no se reabre (trigger) |
+| API | `POST /api/adquisiciones/:id/transferir`; `GET /api/adquisiciones/:id` devuelve titulares y pagos anteriores; filtro `titularidad`; `GET /api/auditoria` (filtros por fecha, acción y usuario; 50 por página; solo secretaria) |
+| Pantallas | Botón **Cambiar titular** (dos pasos con resumen) en Adquisiciones y Estado de cuenta; tabla de titulares de la semana; pagos de titulares anteriores; menú **Auditoría** |
+| Auditoría adicional | Los cambios del calendario de semanas (crear, editar y quitar fechas) ahora quedan registrados |
+
+### 14.3. Pruebas
+| Batería | Resultado | Evidencia |
+|---|---|---|
+| BD | **139/139** (30 nuevas: TT01–TT30 y X14–X16) | `bd_2026-11-04_1123.txt` |
+| API | **66/66** (10 nuevas) | `api_2026-11-04_1143.txt` |
+| Navegador | **17/17** (2 nuevas, con capturas 12, 13 y 14 en computador y celular) | `navegador_2026-11-04_1143.txt` |
+| Volumen | **3/3**; panel 555 ms, estado de cuenta 23 ms (meta 3 s) | `volumen_2026-11-04_1140.txt` |
+
+Observación: en una ejecución de la batería API, la prueba de comprobantes falló una vez con "fetch failed" (conexión cortada); no se repitió en tres ejecuciones siguientes. Se deja anotada como intermitente.
+
+### 14.4. Aplicación a las bases
+- `cam_db` local: respaldo `cam_db_2026-11-04_1134.dump` y script 08 aplicado; se conservaron las 9 adquisiciones y los 54 pagos.
+- Neon (producción): pendiente de autorización, junto con la publicación del código.
+
+### 14.5. Pendiente
+- Mora (D6): sigue requiriendo la fecha de vencimiento de cada cuota.

@@ -47,9 +47,10 @@ export function cuadriculaCuotas(cuotas) {
       h('span', {}, h('span', { class: 'muestra POR_VERIFICAR' }), 'Registrada, por verificar'),
       h('span', {}, h('span', { class: 'muestra' }), 'Pendiente')),
     h('div', { class: 'cuotas' }, cuotas.map((c) =>
-      h('div', { class: `cuota ${c.situacion_cuota}`, title: `Cuota ${c.numero_cuota}: ${c.situacion_cuota.replace('_', ' ').toLowerCase()}` },
+      h('div', { class: `cuota ${c.situacion_cuota}`, title: `Cuota ${c.numero_cuota}: ${c.situacion_cuota.replace('_', ' ').toLowerCase()}${c.de_titular_anterior ? ' por un titular anterior' : ''}` },
         h('b', {}, String(c.numero_cuota)),
-        c.situacion_cuota === 'PAGADA' ? 'Pagada' : c.situacion_cuota === 'POR_VERIFICAR' ? 'Por verificar' : 'Pendiente'))));
+        c.situacion_cuota === 'PAGADA' ? (c.de_titular_anterior ? 'Pagada (tit. anterior)' : 'Pagada')
+          : c.situacion_cuota === 'POR_VERIFICAR' ? 'Por verificar' : 'Pendiente'))));
 }
 
 // Resumen del estado de cuenta en tarjetas.

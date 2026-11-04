@@ -1,0 +1,74 @@
+PRUEBAS DEL BACKEND (API HTTP) · CAM · 2026-11-04 11:43:04
+Comando: npm.cmd test   ·   Node v22.20.0   ·   Base: cam_test (reconstruida en cada archivo)
+Servidor real iniciado como proceso aparte en el puerto 3199; solicitudes HTTP como un navegador.
+Incluye 05_transferencias_auditoria.test.js (cambio de titular D16 y consulta de auditoría).
+
+ok 1 - Salud: el servidor responde y la base está conectada
+ok 2 - Sin sesión, las páginas privadas responden 401
+ok 3 - Acceso incorrecto: mismo mensaje para clave errada y usuario inexistente
+ok 4 - Acceso correcto de la secretaria: entra al panel con cifras calculadas
+ok 5 - Propietario entra con cédula + contraseña y NO accede a opciones administrativas (403)
+ok 6 - La cédula sola no basta: cédula con clave vacía o incorrecta es rechazada
+ok 7 - Propietario inactivo no puede entrar (mensaje genérico)
+ok 8 - Bloqueo temporal tras 5 intentos fallidos, incluso con la clave correcta después
+ok 9 - Cierre de sesión efectivo: la cookie anterior deja de servir
+ok 10 - Contraseña temporal: debe cambiarse antes de usar la aplicación
+ok 11 - Las contraseñas se guardan solo como hash bcrypt
+ok 12 - Protección CSRF: se rechazan solicitudes desde otro sitio o con formato de formulario
+ok 13 - La cookie de sesión es HttpOnly y SameSite
+ok 14 - Errores inesperados no exponen SQL; rutas inexistentes dan 404
+ok 15 - Propietarios: registro válido, búsqueda por cédula y por nombre
+ok 16 - Propietarios: cédula duplicada (409), correo duplicado (409), datos inválidos (400)
+ok 17 - Propietarios: editar, desactivar y no eliminar si tiene historial
+ok 18 - Semanas: fechas inválidas (400), traslapadas (409) y válidas (201)
+ok 19 - Semanas: consulta de disponibilidad y titular actual
+ok 20 - Adquisiciones: semana con titular (409) y asignación válida que copia las condiciones
+ok 21 - Pagos: registro válido; usuario y fecha de registro los pone el servidor
+ok 22 - Pagos: cuota repetida, fuera del plan, importe incorrecto, cero, negativo y fecha futura
+ok 23 - Pagos: 8 solicitudes HTTP simultáneas de la misma cuota -> 1 registrada, 7 rechazadas
+ok 24 - Comprobante: no se emite para pago sin verificar; verificar; emitir; no duplicar
+ok 25 - Comprobante: PDF descargable con contenido válido
+ok 26 - Comprobante: incluye los datos exigidos y la aclaración
+ok 27 - Pago con comprobante: no se anula ni se revierte; el envío por correo no se finge
+ok 28 - Anulación con historial: exige motivo, conserva el registro y libera la cuota
+ok 29 - Estado de cuenta: 10 cuotas verificadas = $7.500.000, 14 pendientes, $10.500.000 (DEMO Ana, semana 5)
+ok 30 - Estado de cuenta: los pagos sin verificar se muestran aparte y no bajan el saldo
+ok 31 - Propietario con dos semanas: cada adquisición tiene su propio plan y saldo
+ok 32 - Parámetros: incoherentes rechazados; un cambio no altera adquisiciones ni pagos anteriores
+ok 33 - Exportación coherente: recaudo?desde=2025-06-01&hasta=2026-03-31 tiene las mismas filas en pantalla y en Excel
+ok 34 - Exportación coherente: recaudo? tiene las mismas filas en pantalla y en Excel
+ok 35 - Exportación coherente: pagos?estado=VERIFICADO&desde=2025-10-01&hasta=2026-06-30 tiene las mismas filas en pantalla y en Excel
+ok 36 - Exportación coherente: pagos?estado=NO_VERIFICADO tiene las mismas filas en pantalla y en Excel
+ok 37 - Exportación coherente: por-verificar? tiene las mismas filas en pantalla y en Excel
+ok 38 - Exportación coherente: saldos?situacion=EN_CURSO tiene las mismas filas en pantalla y en Excel
+ok 39 - Exportación coherente: saldos?situacion=PAGADA tiene las mismas filas en pantalla y en Excel
+ok 40 - Exportación coherente: sin-pago?anio=2026&mes=10 tiene las mismas filas en pantalla y en Excel
+ok 41 - Reportes: los filtros sí cambian el resultado y coinciden con un cálculo directo en la base
+ok 42 - Reportes: "sin pago en el mes" no es mora y excluye a quien pagó ese mes
+ok 43 - Reportes: reporte inexistente (404) y filtros inválidos (400)
+ok 44 - Estado de cuenta exportable a Excel (24 cuotas)
+ok 45 - Comunidad: el propietario ve solo ofertas activas, sin cédula ni correo del autor
+ok 46 - Comunidad: filtro por tipo
+ok 47 - Comunidad: oferta sobre semana ajena es rechazada (403)
+ok 48 - Comunidad: reglas de precio por tipo
+ok 49 - Comunidad: la secretaria no publica; otro propietario no puede retirar ni eliminar la oferta
+ok 50 - Comunidad: mensajes en orden cronológico con autor
+ok 51 - Comunidad: oferta retirada no admite mensajes y solo la ven quienes participaron
+ok 52 - Comunidad: concretar una oferta NO transfiere la titularidad
+ok 53 - Comunidad: eliminar oferta propia publicada por error (sin mensajes)
+ok 54 - Comunidad: la secretaria supervisa todas las ofertas y puede cerrar cualquiera
+ok 55 - Comunidad: "mis semanas" solo lista semanas propias con titularidad vigente
+ok 56 - Datos y sesión se conservan después de reiniciar el servidor
+ok 57 - Cambio de titular: solo la secretaria (propietario 403, sin sesión 401)
+ok 58 - Cambio de titular: datos inválidos (400) y pagos sin verificar (409)
+ok 59 - Cambio de titular: venta de una semana pagada; el nuevo titular asume saldo $0
+ok 60 - Estado de cuenta tras la venta: titulares, pagos anteriores y plan heredado
+ok 61 - Listado por titularidad y semana con un solo titular vigente
+ok 62 - Después de transferir: no se cobra dos veces ni se transfiere otra vez la adquisición anterior
+ok 63 - Auditoría: el cambio de titular queda registrado con quién, cuándo y el detalle
+ok 64 - Auditoría: filtros por fecha y usuario, paginación y validación
+ok 65 - Auditoría: los propietarios no pueden consultarla (403)
+ok 66 - Auditoría: los cambios del calendario de semanas quedan registrados
+# tests 66
+# pass 66
+# fail 0

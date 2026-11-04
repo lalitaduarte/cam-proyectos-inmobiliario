@@ -31,9 +31,8 @@ router.get('/:id', async (req, res) => {
   if (!s) throw new ErrorApp(404, 'La semana no existe.');
   s.fechas = await bd.filas('SELECT * FROM semana_fecha WHERE semana_id = $1 ORDER BY anio', [id]);
   s.historial = await bd.filas(
-    `SELECT a.id, a.fecha_adquisicion, a.estado_titularidad, a.fecha_fin_titularidad, p.nombre_completo, p.cedula
-       FROM adquisicion a JOIN propietario p ON p.id = a.propietario_id
-      WHERE a.semana_id = $1 ORDER BY a.fecha_adquisicion DESC`, [id]);
+    `SELECT adquisicion_id AS id, * FROM v_historial_titulares
+      WHERE semana_id = $1 ORDER BY fecha_adquisicion DESC, adquisicion_id DESC`, [id]);
   res.json(s);
 });
 
@@ -58,6 +57,14 @@ router.put('/:id', async (req, res) => {
   res.json(s);
 });
 
+// Deja constancia de los cambios del calendario (quién, cuándo y qué fechas).
+async function auditarFecha(req, accion, f) {
+  const sem = await bd.fila('SELECT numero FROM semana WHERE id = $1', [f.semana_id]);
+  await bd.consulta(
+    `INSERT INTO auditoria (usuario_id, accion, tabla, registro_id, detalle) VALUES ($1, $2, 'semana_fecha', $3, $4)`,
+    [usuarioId(req), accion, f.id, { semana: sem && sem.numero, anio: f.anio, entrada: f.fecha_entrada, salida: f.fecha_salida }]);
+}
+
 function datosFecha(b) {
   const d = {
     anio: v.entero(b.anio, 'año', { min: 2000, max: 2100 }),
@@ -76,6 +83,7 @@ router.post('/:id/fechas', async (req, res) => {
   const f = await bd.fila(
     `INSERT INTO semana_fecha (semana_id, anio, fecha_entrada, fecha_salida, nota, creado_por)
      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [id, d.anio, d.entrada, d.salida, d.nota, usuarioId(req)]);
+  await auditarFecha(req, 'CREAR', f);
   res.status(201).json(f);
 });
 
@@ -86,13 +94,15 @@ router.put('/fechas/:fechaId', async (req, res) => {
     `UPDATE semana_fecha SET anio = $2, fecha_entrada = $3, fecha_salida = $4, nota = $5 WHERE id = $1 RETURNING *`,
     [v.id(req.params.fechaId), d.anio, d.entrada, d.salida, d.nota]);
   if (!f) throw new ErrorApp(404, 'El registro de fechas no existe.');
+  await auditarFecha(req, 'EDITAR', f);
   res.json(f);
 });
 
 // DELETE /api/semanas/fechas/:fechaId
 router.delete('/fechas/:fechaId', async (req, res) => {
-  const r = await bd.consulta('DELETE FROM semana_fecha WHERE id = $1', [v.id(req.params.fechaId)]);
+  const r = await bd.consulta('DELETE FROM semana_fecha WHERE id = $1 RETURNING *', [v.id(req.params.fechaId)]);
   if (r.rowCount === 0) throw new ErrorApp(404, 'El registro de fechas no existe.');
+  await auditarFecha(req, 'ELIMINAR', r.rows[0]);
   res.json({ ok: true });
 });
 

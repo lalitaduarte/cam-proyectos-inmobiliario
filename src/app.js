@@ -16,6 +16,7 @@ const adquisiciones = require('./rutas/adquisiciones');
 const { pagos, comprobantes } = require('./rutas/pagos');
 const { panel, reportes, parametros } = require('./rutas/panel_reportes');
 const comunidad = require('./rutas/comunidad');
+const auditoria = require('./rutas/auditoria');
 
 function crearApp() {
   const app = express();
@@ -90,6 +91,7 @@ function crearApp() {
   api.use('/comprobantes', secretaria, comprobantes);
   api.use('/reportes', secretaria, reportes);
   api.use('/parametros', secretaria, parametros);
+  api.use('/auditoria', secretaria, auditoria);
   api.use('/ofertas', ambos, comunidad);
 
   api.use((req, res, next) => next(new ErrorApp(404, 'La ruta solicitada no existe.')));

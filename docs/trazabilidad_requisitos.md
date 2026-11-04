@@ -13,10 +13,10 @@ Fuentes: [A2] *Actividad 2* (requisitos FUN y RNF) y [PL] *Plantilla diligenciad
 
 | Abreviatura | Batería | Resultado | Evidencia en `pruebas/evidencias/` |
 |---|---|---|---|
-| **BD** | Base de datos: reglas, permisos, triggers y concurrencia (`bash pruebas/bd/ejecutar_pruebas_bd.sh`) | **106/106** | `bd_2026-11-03_0616.txt` |
-| **API** | Backend: solicitudes HTTP al servidor real (`npm.cmd test`) | **56/56** | `api_2026-11-03_0618.txt` |
-| **NAV** | Recorrido en Chrome, en computador y celular (`npm.cmd run test:navegador`) | **15/15** | `navegador_2026-11-03_0620.txt` y `capturas/` |
-| **VOL** | Volumen y rendimiento (`npm.cmd run test:volumen`) | **3/3** | `volumen_2026-11-03_0607.txt` |
+| **BD** | Base de datos: reglas, permisos, triggers y concurrencia (`bash pruebas/bd/ejecutar_pruebas_bd.sh`) | **139/139** | `bd_2026-11-04_1123.txt` |
+| **API** | Backend: solicitudes HTTP al servidor real (`npm.cmd test`) | **66/66** | `api_2026-11-04_1143.txt` |
+| **NAV** | Recorrido en Chrome, en computador y celular (`npm.cmd run test:navegador`) | **17/17** | `navegador_2026-11-04_1143.txt` y `capturas/` |
+| **VOL** | Volumen y rendimiento (`npm.cmd run test:volumen`) | **3/3** | `volumen_2026-11-04_1140.txt` |
 | **PER** | Persistencia tras reiniciar el servicio PostgreSQL 18 (`npm.cmd run persistencia`) | 12/12 tablas idénticas; la aplicación se recuperó sola | `persistencia_2026-11-03_0905.txt` |
 | **RES** | Respaldo y restauración (`npm.cmd run respaldar` y `npm.cmd run probar-restauracion`) | 13/13 tablas idénticas | `restauracion_2026-11-03_0609.txt` |
 
@@ -32,7 +32,7 @@ Todas las baterías se ejecutan sobre la base de pruebas `cam_test`, nunca sobre
 | FUN-PRO-01 | Registrar propietario; cédula única | `propietarios.js`; índice único | API 15, 16; BD-P; NAV 3 | Cumplido |
 | FUN-PRO-02 | Consultar y actualizar propietarios | Búsqueda por cédula o nombre; edición; el comprobante guarda una "fotografía" de los datos | API 15, 17; BD-K | Cumplido |
 | FUN-SEM-01 | Semanas con número, check-in y check-out | 52 semanas permanentes, con calendario por año (D1); fechas sin traslapes | API 18; BD-S; NAV 9 | Cumplido con ajuste (D1) |
-| FUN-SEM-02 | Asignar semanas; un titular por semana | `fn_crear_adquisicion` e índice único parcial | API 20; BD-A, BD-Z; NAV 4 | **Parcial**: el cambio de titular tras una venta no está implementado (C12, falta definir la política de saldos con CAM) |
+| FUN-SEM-02 | Asignar semanas; un titular por semana | `fn_crear_adquisicion` e índice único parcial | API 20; BD-A, BD-Z; NAV 4 | Cumplido. Cambio de titular con `fn_transferir_titularidad` (D16: el nuevo titular asume el saldo): BD-TT01–TT30, X14–X16; API 57–62; NAV 12 |
 | FUN-SEM-03 | Semanas por propietario | Detalle del propietario con sus adquisiciones | API 19, 31 | Cumplido |
 | FUN-PAG-01 | Registrar pago con usuario que registra | `fn_registrar_pago`; usuario y fecha los fija el servidor | API 21; NAV 5 | Cumplido |
 | FUN-PAG-02 | Rechazar cuota fuera de rango, valor no positivo y cuota repetida | Validación en la función más índice único | API 22, 23; BD-G, BD-Z | Cumplido |
@@ -59,7 +59,7 @@ Todas las baterías se ejecutan sobre la base de pruebas `cam_test`, nunca sobre
 | RNF-SEG-01 | Contraseñas solo como hash | bcrypt; API 11; BD-U | Cumplido |
 | RNF-SEG-02 | Mínimo privilegio; el propietario no consulta pagos | `cam_app` sin permisos para borrar ni modificar pagos (BD-U); propietario recibe 403 (API 5); el backend no se conecta como superusuario | Cumplido (C11) |
 | RNF-SEG-03 | Ley 1581: aviso de privacidad y datos protegidos | Aviso en la pantalla de ingreso; las vistas de comunidad no incluyen cédula ni correo (API 45) | Cumplido. Falta que CAM revise el texto del aviso |
-| RNF-AUD-01 | Quién y cuándo en cada pago, verificación y comprobante | Columnas `registrado_por`, `verificado_por`, `emitido_por` y tabla `auditoria` | API 21; BD-T | Cumplido |
+| RNF-AUD-01 | Quién y cuándo en cada pago, verificación y comprobante | Columnas `registrado_por`, `verificado_por`, `emitido_por` y tabla `auditoria`; pantalla **Auditoría** de solo lectura (`v_auditoria_detalle`) | API 21, 63–66; BD-T, TT24, TT28–TT30; NAV 13 | Cumplido |
 | RNF-FIA-01 | Transacciones ACID; 100 % de datos inválidos rechazados | Funciones transaccionales con `FOR UPDATE`; CHECK, UNIQUE, FK y triggers | BD (106 pruebas, todos los casos negativos rechazados); API 22, 23 | Cumplido |
 | RNF-FIA-02 | Respaldo periódico y restauración comprobada | `npm.cmd run respaldar` / `probar-restauracion`; procedimiento de emergencia probado | RES 13/13; [respaldo_restauracion.md](respaldo_restauracion.md) | Cumplido en local. La **copia diaria** depende de programar la tarea; el respaldo en Neon se hará en la Etapa 6 |
 | RNF-DIS-01 | Disponibilidad ≥ 95 % | — | **Pendiente** (Etapa 6). Riesgo: el plan gratuito de Render se suspende tras 15 minutos sin uso y tarda cerca de un minuto en despertar |
@@ -108,6 +108,6 @@ Servidor real en el computador de desarrollo, con 200 propietarios, 52 adquisici
 |---|---|---|
 | Dependencias | `npm audit`: 9 avisos moderados, todos internos de `exceljs` 4.4.0, que es su última versión. `minimatch` (ReDoS con patrones) y `uuid` (solo en v3/v5/v6 con `buf`) | No son explotables en CAM: `exceljs` usa solo `uuid.v4`, y `minimatch` nunca recibe datos del usuario. La única "corrección" de npm baja a `exceljs` 3.4.0, que es peor. Se revisará al publicar |
 | Correo | Sin servicio de correo configurado | Los comprobantes se entregan en PDF. No se marca como enviado lo que no salió |
-| Cambio de titular | No implementado | Requiere que CAM defina qué pasa con las cuotas pendientes al vender |
+| Cambio de titular | Implementado (D16) | Regla aprobada por la docente. Conviene que CAM la confirme con su procedimiento legal |
 | Mora | No hay fecha de vencimiento por cuota | Se usa "sin pago en el mes" (D6) |
 | Contraseñas DEMO | `CamDemo2026!` y `Propietario2026!` son públicas | La publicación se hará con `--sin-demo` y cuentas reales (Etapa 6) |

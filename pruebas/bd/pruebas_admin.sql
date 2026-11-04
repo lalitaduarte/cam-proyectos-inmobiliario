@@ -42,3 +42,13 @@ SELECT pruebas.espera_error('X12 Mensaje directo en oferta cerrada',
   $$INSERT INTO mensaje (oferta_id, autor_id, texto) SELECT id, publicada_por, 'x' FROM oferta WHERE estado <> 'ACTIVA' LIMIT 1$$, 'CA409');
 SELECT pruebas.espera_error('X13 CHECK: oferta de intercambio con precio directo en la tabla',
   $$UPDATE oferta SET precio = 100 WHERE tipo = 'INTERCAMBIO'$$, '23514');
+
+-- Cambio de titular (D16): protección en la tabla aunque se salten las funciones.
+SELECT a.id AS adq_t, a.adquisicion_anterior_id AS adq_t_ant FROM adquisicion a
+ JOIN propietario p ON p.id = a.propietario_id WHERE p.cedula = '900000303' \gset
+SELECT pruebas.espera_error('X14 Trigger: insertar directo una cuota ya pagada por un titular anterior',
+  format('INSERT INTO pago (adquisicion_id, numero_cuota, valor, fecha_pago, registrado_por) VALUES (%s, 2, 750000, current_date, 1)', :adq_t), 'CA409');
+SELECT pruebas.espera_error('X15 Trigger: reabrir una titularidad transferida',
+  format($$UPDATE adquisicion SET estado_titularidad = 'VIGENTE', fecha_fin_titularidad = NULL WHERE id = %s$$, :adq_t_ant), 'CA409');
+SELECT pruebas.espera_error('X16 Trigger: cambiar el enlace al titular anterior',
+  format('UPDATE adquisicion SET adquisicion_anterior_id = NULL, origen = %L WHERE id = %s', 'ASIGNACION', :adq_t), 'CA409');

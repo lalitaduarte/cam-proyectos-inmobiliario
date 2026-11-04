@@ -34,6 +34,7 @@ como_admin -f pruebas/bd/preparar_pruebas.sql > "$TMP/preparar.txt"
 
 echo "== 2. Pruebas de reglas y permisos (cam_app)"
 como_app -f pruebas/bd/pruebas_app.sql > /dev/null
+como_app -f pruebas/bd/pruebas_transferencias.sql > /dev/null
 
 echo "== 3. Pruebas de triggers (cam_admin)"
 como_admin -f pruebas/bd/pruebas_admin.sql > /dev/null

@@ -14,6 +14,7 @@ import reportes from './vistas/reportes.js';
 import parametros from './vistas/parametros.js';
 import comunidad from './vistas/comunidad.js';
 import clave from './vistas/clave.js';
+import auditoria from './vistas/auditoria.js';
 
 const app = document.getElementById('app');
 let sesion = null;
@@ -31,6 +32,7 @@ const RUTAS = {
     ['reportes', reportes, 'Recaudo y reportes'],
     ['parametros', parametros, 'Parámetros'],
     ['comunidad', comunidad, 'Comunidad'],
+    ['auditoria', auditoria, 'Auditoría'],
     ['clave', clave, null],
   ],
   PROPIETARIO: [

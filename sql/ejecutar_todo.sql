@@ -30,4 +30,6 @@
 \endif
 \echo '== 07 comentarios (diccionario de datos)'
 \ir 07_comentarios.sql
+\echo '== 08 transferencias de titular y auditoría'
+\ir 08_transferencias_auditoria.sql
 \echo '== Listo'

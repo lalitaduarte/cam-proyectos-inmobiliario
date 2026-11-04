@@ -192,6 +192,48 @@ test('Parámetros y supervisión de la comunidad cargan', async () => {
   await capturar('09-parametros-comunidad-sec', { movil: true });
 });
 
+test('Cambio de titular en dos pasos: el nuevo titular asume el saldo (semana 12, pagada)', async () => {
+  await ir('#/adquisiciones');
+  await nav.esperarTexto('Titulares actuales');
+  // Botón "Cambiar titular" de la fila de la semana 12.
+  await nav.esperarQue(`[...document.querySelectorAll('tr')].some((tr) => tr.textContent.includes('Semana 12') && tr.querySelector('button'))`, 'fila de la semana 12');
+  await nav.evaluar(`[...document.querySelectorAll('tr')].find((tr) => tr.textContent.includes('Semana 12')).querySelector('button').click()`);
+  await nav.esperarTexto('El nuevo titular asume el saldo');
+  await nav.elegir('#dialogo select[name=nuevo_propietario_id]', 'PRUEBA Navegador');
+  await nav.elegir('#dialogo select[name=tipo]', 'Venta');
+  await nav.escribir('#dialogo input[name=soporte]', 'PRUEBA contrato navegador');
+  await nav.enviarFormulario('#dialogo form');
+  await nav.esperarTexto('¿Confirma el cambio de titular?');
+  await capturar('12-cambio-titular');
+  await capturar('12-cambio-titular', { movil: true });
+  await nav.clic('Confirmar cambio de titular', '#dialogo');
+  await nav.esperarTexto('el nuevo titular es PRUEBA Navegador');
+  assert.equal(consultaDirecta(`SELECT p.nombre_completo || '|' || a.origen FROM cam.adquisicion a JOIN cam.propietario p ON p.id = a.propietario_id
+    JOIN cam.semana s ON s.id = a.semana_id WHERE s.numero = 12 AND a.estado_titularidad = 'VIGENTE'`), 'PRUEBA Navegador|VENTA');
+
+  const nueva = consultaDirecta(`SELECT a.id FROM cam.adquisicion a JOIN cam.semana s ON s.id = a.semana_id WHERE s.numero = 12 AND a.estado_titularidad = 'VIGENTE'`);
+  await ir(`#/estado-cuenta/${nueva}`);
+  await nav.esperarTexto('Titulares de la semana 12');
+  await nav.esperarTexto('Pagos de titulares anteriores');
+  const t = await nav.textoVisible();
+  assert.match(t, /24 cuota\(s\) \(\$\s?18\.000\.000\) las pagaron titulares anteriores/);
+  assert.match(t, /Pagada \(tit\. anterior\)/);
+  await capturar('13-estado-cuenta-transferida');
+  await capturar('13-estado-cuenta-transferida', { movil: true });
+});
+
+test('Auditoría: muestra el cambio de titular con quién, cuándo y el soporte', async () => {
+  await ir('#/auditoria');
+  await nav.esperarTexto('Registro de quién hizo cada operación');
+  await nav.elegir('select[name=accion]', 'Cambio de titular');
+  await nav.esperarTexto('Soporte: PRUEBA contrato navegador');
+  const t = await nav.textoVisible();
+  assert.match(t, /1 registro\(s\)/);
+  assert.match(t, /a PRUEBA Navegador por venta/);
+  await capturar('14-auditoria');
+  await capturar('14-auditoria', { movil: true });
+});
+
 test('Cerrar sesión', async () => {
   await nav.clic('Cerrar sesión');
   await nav.esperarTexto('Sesión cerrada correctamente.');

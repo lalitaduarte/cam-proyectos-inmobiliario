@@ -63,7 +63,8 @@ const ESTADOS = {
   ACTIVA: ['Activa', 'verde'], RETIRADA: ['Retirada', ''], CONCRETADA: ['Concretada', 'azul'],
   ENVIADO: ['Enviado', 'verde'], FALLIDO: ['Envío fallido', 'rojo'],
   DISPONIBLE: ['Disponible', 'azul'], CON_TITULAR: ['Con titular', 'verde'],
-  VENTA: ['Venta', 'azul'], INTERCAMBIO: ['Intercambio', 'verde'],
+  VENTA: ['Venta', 'azul'], INTERCAMBIO: ['Intercambio', 'verde'], CESION: ['Cesión', 'azul'], OTRO: ['Otro', ''],
+  ASIGNACION: ['Asignación', ''],
   ACTIVO: ['Activo', 'verde'], INACTIVO: ['Inactivo', 'rojo'],
 };
 export function insignia(estado, textoAlterno) {

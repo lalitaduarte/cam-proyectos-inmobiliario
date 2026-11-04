@@ -1,9 +1,9 @@
 # Diccionario de datos — CAM
 
-Generado automáticamente desde la base `cam_db` (PostgreSQL, esquema `cam`) el 3 de noviembre de 2026, con `npm.cmd run diccionario`.
+Generado automáticamente desde la base `cam_db` (PostgreSQL, esquema `cam`) el 4 de noviembre de 2026, con `npm.cmd run diccionario`.
 Las descripciones están guardadas en la propia base (`sql/07_comentarios.sql`). Diagrama: [diagrama_er.md](diagrama_er.md).
 
-**Contenido:** 14 tablas, 10 vistas, 23 funciones.
+**Contenido:** 14 tablas, 13 vistas, 26 funciones.
 
 Convenciones: *Obligatorio* = la columna no admite valores vacíos (NOT NULL). Los valores en pesos usan `numeric(14,2)`.
 Las fechas y horas (`timestamptz`) se muestran en la zona America/Bogota.
@@ -25,7 +25,7 @@ Las fechas y horas (`timestamptz`) se muestran en la zona America/Bogota.
 - [sesion](#sesion) — Sesiones abiertas de la aplicación (connect-pg-simple). Permiten reiniciar el servidor sin cerrar sesiones.
 - [usuario](#usuario) — Cuentas de acceso a la aplicación: secretarias y propietarios.
 
-Vistas: [v_comprobante_detalle](#v_comprobante_detalle), [v_estado_cuenta](#v_estado_cuenta), [v_mensaje_detalle](#v_mensaje_detalle), [v_oferta_detalle](#v_oferta_detalle), [v_pago_detalle](#v_pago_detalle), [v_panel](#v_panel), [v_plan_cuotas](#v_plan_cuotas), [v_recaudo_mensual](#v_recaudo_mensual), [v_semana_titular](#v_semana_titular), [v_totales_adquisicion](#v_totales_adquisicion)
+Vistas: [v_adquisicion_linaje](#v_adquisicion_linaje), [v_auditoria_detalle](#v_auditoria_detalle), [v_comprobante_detalle](#v_comprobante_detalle), [v_estado_cuenta](#v_estado_cuenta), [v_historial_titulares](#v_historial_titulares), [v_mensaje_detalle](#v_mensaje_detalle), [v_oferta_detalle](#v_oferta_detalle), [v_pago_detalle](#v_pago_detalle), [v_panel](#v_panel), [v_plan_cuotas](#v_plan_cuotas), [v_recaudo_mensual](#v_recaudo_mensual), [v_semana_titular](#v_semana_titular), [v_totales_adquisicion](#v_totales_adquisicion)
 
 ## Tablas
 
@@ -48,18 +48,24 @@ Titularidad de una semana con copia de sus condiciones económicas. Conserva his
 | `observacion` | character varying(300) | No | — | Observación opcional. |
 | `creado_en` | timestamp with time zone | Sí | now() | Fecha y hora de registro. |
 | `creado_por` | bigint | Sí | — | Usuario que asignó la semana. |
+| `origen` | character varying(12) | Sí | 'ASIGNACION'::character varying | Cómo llegó la semana a este titular: ASIGNACION (semana disponible) o transferencia (VENTA, CESION, INTERCAMBIO, OTRO). |
+| `adquisicion_anterior_id` | bigint | No | — | En una transferencia, la adquisición del titular anterior. Sus pagos verificados cuentan para el saldo (D16). |
 
 **Reglas en la base:**
 
 - Validación (CHECK) `adquisicion_coherente`: `CHECK ((((numero_cuotas)::numeric * valor_cuota) = valor_accion))`
 - Validación (CHECK) `adquisicion_estado_valido`: `CHECK (((estado_titularidad)::text = ANY ((ARRAY['VIGENTE'::character varying, 'TRANSFERIDA'::character varying])::text[])))`
 - Validación (CHECK) `adquisicion_fin_coherente`: `CHECK ((((estado_titularidad)::text = 'VIGENTE'::text) = (fecha_fin_titularidad IS NULL)))`
+- Validación (CHECK) `adquisicion_origen_coherente`: `CHECK ((((origen)::text = 'ASIGNACION'::text) = (adquisicion_anterior_id IS NULL)))`
+- Validación (CHECK) `adquisicion_origen_valido`: `CHECK (((origen)::text = ANY ((ARRAY['ASIGNACION'::character varying, 'VENTA'::character varying, 'CESION'::character varying, 'INTERCAMBIO'::character varying, 'OTRO'::character varying])::text[])))`
 - Validación (CHECK) `adquisicion_valores_positivos`: `CHECK (((valor_accion > (0)::numeric) AND (valor_cuota > (0)::numeric) AND (numero_cuotas > 0)))`
+- Llave foránea `adquisicion_anterior_fk`: `FOREIGN KEY (adquisicion_anterior_id) REFERENCES adquisicion(id)`
 - Llave foránea `adquisicion_creado_por_fkey`: `FOREIGN KEY (creado_por) REFERENCES usuario(id)`
 - Llave foránea `adquisicion_parametro_id_fkey`: `FOREIGN KEY (parametro_id) REFERENCES parametro_accion(id)`
 - Llave foránea `adquisicion_propietario_id_fkey`: `FOREIGN KEY (propietario_id) REFERENCES propietario(id)`
 - Llave foránea `adquisicion_semana_id_fkey`: `FOREIGN KEY (semana_id) REFERENCES semana(id)`
 - Llave primaria `adquisicion_pkey`: `PRIMARY KEY (id)`
+- Índice `adquisicion_anterior_uq`: `UNIQUE INDEX adquisicion_anterior_uq ON cam.adquisicion (adquisicion_anterior_id) WHERE (adquisicion_anterior_id IS NOT NULL)`
 - Índice `adquisicion_propietario_idx`: `INDEX adquisicion_propietario_idx ON cam.adquisicion (propietario_id)`
 - Índice `adquisicion_titular_vigente_uq`: `UNIQUE INDEX adquisicion_titular_vigente_uq ON cam.adquisicion (semana_id) WHERE ((estado_titularidad)::text = 'VIGENTE'::text)`
 - Trigger `adquisicion_proteger` → `tg_adquisicion_proteger()`
@@ -402,6 +408,18 @@ Cuentas de acceso a la aplicación: secretarias y propietarios.
 
 Consultas guardadas que usa la aplicación. No almacenan datos: se calculan al consultarlas.
 
+### v_adquisicion_linaje
+
+Cada adquisición con ella misma (nivel 0) y las de sus titulares anteriores (nivel 1, 2...).
+
+Columnas: `adquisicion_id`, `ancestro_id`, `nivel`
+
+### v_auditoria_detalle
+
+Registro de auditoría con el nombre y rol de quien hizo cada acción.
+
+Columnas: `id`, `ocurrido_en`, `usuario_id`, `usuario_nombre`, `usuario_login`, `usuario_rol`, `accion`, `tabla`, `registro_id`, `detalle`
+
 ### v_comprobante_detalle
 
 Comprobantes con su estado de envío: ENVIADO, FALLIDO o PENDIENTE (sin intentos), y el último intento.
@@ -412,7 +430,13 @@ Columnas: `id`, `consecutivo`, `numero`, `pago_id`, `emitido_en`, `emitido_por`,
 
 Estado de cuenta por adquisición: abonado (solo verificados, D2), cuotas pagadas y pendientes, saldo y situación EN_CURSO / PAGADA.
 
-Columnas: `adquisicion_id`, `propietario_id`, `cedula`, `nombre_completo`, `correo`, `semana_id`, `semana_numero`, `fecha_adquisicion`, `estado_titularidad`, `valor_accion`, `numero_cuotas`, `valor_cuota`, `cuotas_registradas`, `cuotas_pagadas`, `cuotas_por_verificar`, `cuotas_pendientes`, `cuotas_sin_registrar`, `total_registrado`, `total_abonado`, `saldo`, `situacion_pago`
+Columnas: `adquisicion_id`, `propietario_id`, `cedula`, `nombre_completo`, `correo`, `semana_id`, `semana_numero`, `fecha_adquisicion`, `estado_titularidad`, `valor_accion`, `numero_cuotas`, `valor_cuota`, `cuotas_registradas`, `cuotas_pagadas`, `cuotas_por_verificar`, `cuotas_pendientes`, `cuotas_sin_registrar`, `total_registrado`, `total_abonado`, `saldo`, `situacion_pago`, `fecha_fin_titularidad`, `origen`, `adquisicion_anterior_id`, `cuotas_heredadas`, `total_heredado`
+
+### v_historial_titulares
+
+Titulares de cada semana, actuales y anteriores, con origen y fechas.
+
+Columnas: `semana_id`, `semana_numero`, `adquisicion_id`, `origen`, `fecha_adquisicion`, `fecha_fin_titularidad`, `estado_titularidad`, `propietario_id`, `nombre_completo`, `cedula`, `adquisicion_anterior_id`, `titular_anterior`, `observacion`
 
 ### v_mensaje_detalle
 
@@ -442,7 +466,7 @@ Columnas: `propietarios_activos`, `propietarios_registrados`, `semanas_total`, `
 
 Plan de cuotas de cada adquisición: cada cuota con su pago y estado, o pendiente.
 
-Columnas: `adquisicion_id`, `numero_cuota`, `valor_cuota`, `pago_id`, `fecha_pago`, `estado_pago`, `situacion_cuota`, `comprobante_numero`
+Columnas: `adquisicion_id`, `numero_cuota`, `valor_cuota`, `pago_id`, `fecha_pago`, `estado_pago`, `situacion_cuota`, `comprobante_numero`, `de_titular_anterior`
 
 ### v_recaudo_mensual
 
@@ -460,7 +484,7 @@ Columnas: `semana_id`, `numero`, `descripcion`, `activa`, `adquisicion_id`, `pro
 
 Totales por adquisición: pagos registrados y verificados (base de los demás cálculos).
 
-Columnas: `adquisicion_id`, `cuotas_registradas`, `cuotas_verificadas`, `total_registrado`, `total_verificado`
+Columnas: `adquisicion_id`, `cuotas_registradas`, `cuotas_verificadas`, `total_registrado`, `total_verificado`, `cuotas_heredadas`, `total_heredado`
 
 ## Funciones
 
@@ -477,7 +501,9 @@ Las operaciones de negocio son funciones *SECURITY DEFINER*: se ejecutan con los
 | `fn_eliminar_propietario` | p_usuario_id bigint, p_propietario_id bigint | void | SECURITY DEFINER |
 | `fn_emitir_comprobante` | p_usuario_id bigint, p_pago_id bigint | bigint | SECURITY DEFINER |
 | `fn_enviar_mensaje` | p_usuario_id bigint, p_oferta_id bigint, p_texto text | bigint | SECURITY DEFINER |
+| `fn_exigir_pago_vigente` | p_pago pago | void | normal |
 | `fn_exigir_usuario` | p_usuario_id bigint, p_rol text | usuario | SECURITY DEFINER |
+| `fn_linaje` | p_adquisicion_id bigint | TABLE(ancestro_id bigint, nivel integer) | normal |
 | `fn_nuevo_parametro` | p_usuario_id bigint, p_valor_accion numeric, p_numero_cuotas integer, p_valor_cuota numeric | bigint | SECURITY DEFINER |
 | `fn_pesos` | p numeric | text | normal |
 | `fn_publicar_oferta` | p_usuario_id bigint, p_adquisicion_id bigint, p_tipo text, p_precio numeric, p_descripcion text | bigint | SECURITY DEFINER |
@@ -485,6 +511,7 @@ Las operaciones de negocio son funciones *SECURITY DEFINER*: se ejecutan con los
 | `fn_registrar_pago` | p_usuario_id bigint, p_adquisicion_id bigint, p_numero_cuota integer, p_valor numeric, p_fecha_pago date, p_referencia text | bigint | SECURITY DEFINER |
 | `fn_revertir_verificacion` | p_usuario_id bigint, p_pago_id bigint, p_motivo text | void | SECURITY DEFINER |
 | `fn_sin_pago_en_mes` | p_anio integer, p_mes integer | TABLE(adquisicion_id bigint, cedula character varying, nombre_completo character varying, correo character varying, semana_numero smallint, cuotas_pagadas bigint, cuotas_registradas bigint, saldo numeric) | SECURITY DEFINER |
+| `fn_transferir_titularidad` | p_usuario_id bigint, p_adquisicion_id bigint, p_nuevo_propietario_id bigint, p_fecha date, p_tipo text, p_observacion text | bigint | SECURITY DEFINER |
 | `fn_verificar_pago` | p_usuario_id bigint, p_pago_id bigint | void | SECURITY DEFINER |
 | `tg_adquisicion_proteger` | — | trigger | normal |
 | `tg_inmutable` | — | trigger | normal |

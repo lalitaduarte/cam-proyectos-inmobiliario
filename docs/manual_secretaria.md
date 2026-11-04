@@ -18,6 +18,8 @@ Este manual explica cómo usar la aplicación con el rol **Secretaria** (adminis
 10. [Parámetros de la acción](#10-parámetros-de-la-acción)
 11. [Comunidad](#11-comunidad)
 12. [Preguntas frecuentes y mensajes de error](#12-preguntas-frecuentes-y-mensajes-de-error)
+13. [Cambio de titular (venta, cesión o intercambio)](#13-cambio-de-titular-venta-cesión-o-intercambio)
+14. [Auditoría](#14-auditoría)
 
 ---
 
@@ -88,7 +90,8 @@ Menú **Adquisiciones**. Una *adquisición* es el vínculo entre un propietario 
 
 - Una semana tiene **un solo titular**. Un propietario puede tener **varias semanas**.
 - Las condiciones vigentes en ese momento **se copian** a la adquisición. Si después se cambian los parámetros, esta adquisición conserva las suyas.
-- La lista se puede filtrar con **Buscar** y **Situación de pago** (en curso o pagada).
+- La lista se puede filtrar con **Buscar**, **Titularidad** (titulares actuales o anteriores) y **Situación de pago** (en curso o pagada).
+- Si la semana se vende, se cede o se intercambia, use **Cambiar titular** (sección 13).
 
 ## 6. Pagos de cuotas
 
@@ -131,6 +134,7 @@ Menú **Estado de cuenta**.
 2. Se muestran el **valor de la acción**, el **total abonado** (solo pagos verificados), las **cuotas pagadas y pendientes** y el **saldo**. Debajo aparece el detalle de las 24 cuotas.
 3. Si hay pagos sin verificar, un aviso indica cuántos son y cuánto suman. Esos pagos aún no descuentan el saldo.
 4. **Exportar a Excel** descarga el estado de cuenta para entregarlo al propietario.
+5. Al final aparecen los **titulares de la semana**: quién la tuvo, desde y hasta cuándo, y cómo la recibió. Si la semana cambió de titular, también se ven los **pagos de titulares anteriores**.
 
 Ejemplo: con 10 cuotas verificadas de $750.000 se muestran **$7.500.000 abonados, 14 cuotas pendientes y un saldo de $10.500.000**.
 
@@ -164,7 +168,7 @@ Menú **Comunidad**. La secretaria ve todas las ofertas de los propietarios y pu
 - Presionar **Ver conversación** en una oferta y escribir en ella. Sus mensajes aparecen como "(CAM)".
 - En una oferta activa: **Retirar**, **Marcar concretada** o **Eliminar**. El botón **Eliminar** solo aparece si la oferta no tiene mensajes; si los tiene, se retira.
 
-**Importante:** marcar una oferta como concretada **no cambia el titular** de la semana. El cambio de titular se formaliza en la oficina de CAM y aún no está incluido en la aplicación.
+**Importante:** marcar una oferta como concretada **no cambia el titular** de la semana. Cuando la venta se formalice, regístrela con **Cambiar titular** (sección 13); al hacerlo, la oferta se cierra sola.
 
 En la comunidad, los propietarios ven solo el **nombre** de los demás, nunca su cédula ni su correo (Ley 1581 de 2012).
 
@@ -179,3 +183,32 @@ En la comunidad, los propietarios ven solo el **nombre** de los demás, nunca su
 | El botón queda en "Guardando…" | Espere. El botón se desactiva para evitar registros duplicados |
 | *"La sesión terminó"* | Ingrese de nuevo. Lo que ya se guardó no se pierde |
 | La aplicación tarda cerca de un minuto en abrir | En la versión publicada gratuita, el servidor se "duerme" tras 15 minutos sin uso. El primer ingreso lo despierta |
+| *"El titular actual tiene N pago(s) sin verificar"* | Antes de cambiar el titular, verifique o anule esos pagos en **Pagos de cuotas** |
+| *"La cuota N ya la pagó un titular anterior"* | Esa cuota ya está paga. El nuevo titular solo paga las cuotas pendientes |
+
+## 13. Cambio de titular (venta, cesión o intercambio)
+
+Úselo cuando un propietario vende, cede (por ejemplo, por donación o herencia) o intercambia su semana.
+
+**Regla de CAM:** el **nuevo titular asume el saldo**. Las cuotas que ya pagó el titular anterior cuentan como pagadas y no se vuelven a cobrar. El nuevo titular paga solo las que faltan.
+
+1. Si el nuevo titular no está registrado, regístrelo primero en **Propietarios**.
+2. En **Adquisiciones** (o en el **Estado de cuenta** de la semana), presione **Cambiar titular**.
+3. Elija el **Nuevo titular**, el **Tipo** (venta, cesión, intercambio u otro), la **Fecha** del documento y el **Soporte** (por ejemplo, "Contrato de compraventa del 03/11/2026").
+4. Presione **Revisar**. La aplicación muestra quién deja de ser titular, quién lo será y el saldo que asume.
+5. Presione **Confirmar cambio de titular**. **No se puede deshacer.**
+
+Qué pasa después:
+- El titular anterior queda como **Transferida**, con fecha de fin. Su estado de cuenta se conserva como historial y ya no admite pagos.
+- El nuevo titular tiene un estado de cuenta nuevo, con el mismo plan y las cuotas ya pagadas marcadas como **"Pagada (tit. anterior)"**.
+- Si la semana tenía una oferta activa en la comunidad, se cierra.
+- Queda registrado en la **Auditoría**: quién lo hizo, cuándo, de quién a quién, el saldo asumido y el soporte.
+
+Antes de cambiar el titular, todos los pagos registrados deben estar **verificados o anulados**.
+
+## 14. Auditoría
+
+Menú **Auditoría**. Muestra quién hizo cada operación y cuándo, en hora de Colombia: ingresos, cambios de contraseña, propietarios, semanas y fechas, parámetros, asignaciones, pagos (registro, verificación, anulación y reversión), comprobantes, ofertas y cambios de titular.
+
+- Filtre por **Desde**, **Hasta**, **Acción** y **Usuario**. Se muestran 50 registros por página, del más reciente al más antiguo.
+- Es de **solo lectura**: nadie puede editarla ni borrarla desde la aplicación.
