@@ -497,8 +497,8 @@ Observación: en una ejecución de la batería API, la prueba de comprobantes fa
 
 ### 15.4. Aplicación a las bases
 - `cam_db` local: respaldo `cam_db_2026-11-05_1253.dump` y script 09 aplicado dos veces sin error; se conservaron los 54 pagos y los 11 comprobantes.
+- Neon (producción, autorizado 2026-11-05): respaldo `neon_cam_db_2026-11-05_1254.dump`, script 09 aplicado y permiso de `cam_app` comprobado; después se subió el código a GitHub y Render lo desplegó.
 
 ### 15.5. Pendiente
-- **Neon**: aplicar `sql/09` ANTES de subir el código a GitHub (Render despliega al subir y la lista de comprobantes necesita las columnas nuevas). Respaldo previo ya hecho: `neon_cam_db_2026-11-05_1254.dump`.
 - Preguntas para CAM: día de vencimiento y días de gracia (D6); si hay abonos parciales (D5); cómo entregan hoy el comprobante (D11); documento de la cesión (D16).
 
