@@ -85,7 +85,7 @@ Todas las baterías se ejecutan sobre la base de pruebas `cam_test`, nunca sobre
 | CP11 | Intercambio con precio; semana ajena | Ambas rechazadas | API 47, 48 | Aprobado |
 | CP12 | Cambiar valor de cuota | Histórico sin cambios | API 32; BD-R | Aprobado |
 | CP13 | Dos sesiones registran la misma cuota | Una éxito, otra 409 | API 23 (8 simultáneas); BD-Z (10 simultáneas) | Aprobado |
-| CP14 | Otro computador y recargar: los datos persisten | Datos en la base | API 56 (reinicio del servidor y otro cliente); PER (reinicio de PostgreSQL) | Aprobado en local. **Pendiente**: probar desde otro dispositivo con el enlace publicado (Etapa 6) |
+| CP14 | Otro computador y recargar: los datos persisten | Datos en la base | API 56 (reinicio del servidor y otro cliente); PER (reinicio de PostgreSQL) | Aprobado en local y en la versión publicada: probada desde un teléfono real el 2026-11-05 |
 | CP15 | Exportar 1.248 registros | < 10 s; mismas filas | VOL (2,4 s; 1.249 filas) | Aprobado |
 
 ## Resultados de rendimiento (VOL)

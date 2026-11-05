@@ -386,7 +386,7 @@ Problemas encontrados en la revisión visual y corregidos:
 
 ### 12.4. Pendiente
 
-- Prueba en un **teléfono real** (Etapa 6, con el enlace publicado).
+- ~~Prueba en un teléfono real~~: hecha el 2026-11-05 con el enlace publicado; funciona.
 - Revisión por la docente y el equipo del lenguaje de las pantallas.
 
 ---
@@ -431,7 +431,7 @@ Problemas encontrados en la revisión visual y corregidos:
 - Medir con una usuaria real el registro de un pago en menos de 2 minutos (RNF-USA-01).
 - Revisión del texto del aviso de privacidad por parte de CAM.
 - ~~Primer commit en Git~~: hecho (repositorio en GitHub, rama `main`).
-- Etapa 6: publicación y respaldo en Neon hechos. Faltan la disponibilidad y la prueba desde un teléfono real.
+- Etapa 6: publicación, respaldo en Neon y prueba desde un teléfono real hechos (2026-11-05). Falta medir la disponibilidad.
 
 ---
 
