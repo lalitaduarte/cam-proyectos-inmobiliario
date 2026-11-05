@@ -190,6 +190,26 @@ test('Pago con comprobante: no se anula ni se revierte; el envío por correo no 
   assert.equal((await sec.get(`/api/comprobantes/${estado.cp}`)).datos.estado_envio, 'PENDIENTE');
 });
 
+test('Comprobante: entrega manual (D11) valida, se registra una sola vez y sale de los pendientes', async () => {
+  const url = `/api/comprobantes/${estado.cp}/entregar`;
+  const pendientesAntes = (await sec.get('/api/panel')).datos.comprobantes_por_enviar;
+  assert.equal((await sec.post(url, { medio: 'CORREO' })).estado, 400);
+  assert.equal((await sec.post(url, {})).estado, 400);
+  assert.equal((await sec.post(url, { medio: 'PERSONAL', observacion: 'x'.repeat(301) })).estado, 400);
+  assert.equal((await sec.post('/api/comprobantes/999999/entregar', { medio: 'PERSONAL' })).estado, 404);
+  const r = await sec.post(url, { medio: 'PERSONAL', observacion: 'PRUEBA entregado impreso' });
+  assert.equal(r.estado, 201);
+  assert.equal(r.datos.estado_envio, 'ENVIADO');
+  assert.equal(r.datos.medio_entrega, 'PERSONAL');
+  assert.ok(r.datos.entregado_en);
+  assert.equal((await sec.post(url, { medio: 'WHATSAPP' })).estado, 409);
+  const envios = (await sec.get(`/api/comprobantes/${estado.cp}`)).datos.envios;
+  assert.equal(envios.length, 1);
+  assert.equal(envios[0].correo_destino, null);
+  assert.equal(envios[0].observacion, 'PRUEBA entregado impreso');
+  assert.equal(Number((await sec.get('/api/panel')).datos.comprobantes_por_enviar), Number(pendientesAntes) - 1);
+});
+
 test('Anulación con historial: exige motivo, conserva el registro y libera la cuota', async () => {
   const p2 = consultaDirecta(`SELECT id FROM cam.pago WHERE adquisicion_id = ${estado.adq} AND numero_cuota = 2`);
   assert.equal((await sec.post(`/api/pagos/${p2}/anular`, { motivo: '' })).estado, 400);

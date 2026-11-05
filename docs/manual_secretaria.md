@@ -123,6 +123,7 @@ Un pago **con comprobante** no se puede anular ni revertir. La aplicación lo bl
 En el menú **Comprobantes**:
 - **Ver / imprimir** abre el PDF en otra pestaña. Desde allí se imprime con Ctrl+P.
 - **Descargar PDF** guarda el archivo para enviarlo por WhatsApp o correo desde su cuenta.
+- **Marcar entregado**: después de entregar el comprobante **en persona** (impreso) o **por WhatsApp**, pulse este botón, elija el medio y, si quiere, escriba una observación (por ejemplo, quién lo recibió). El comprobante deja de contar como "pendiente de envío" y en la columna **Envío** aparece *Entregado en persona* o *Enviado por WhatsApp*. Queda registrado quién lo marcó y cuándo (menú **Auditoría**). **No se puede deshacer** y se registra una sola vez.
 - **Enviar por correo**: *todavía no está configurado*. La aplicación lo informa y **no** marca el comprobante como enviado, porque el correo no salió de verdad.
 
 El comprobante es un **soporte interno de pago**. No es una factura electrónica.

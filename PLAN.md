@@ -162,12 +162,12 @@ CAM/
 | # | Tema | Propuesta |
 |---|---|---|
 | D5 | Un pago = una cuota completa | Supuesto del prototipo (igual que [PL]). Pendiente de validar con CAM |
-| D6 | Calendario de cuotas y mora | No se implementa el reporte de mora hasta definir la fecha de vencimiento de cada cuota |
+| D6 | Calendario de cuotas y mora | No se implementa el reporte de mora hasta definir la fecha de vencimiento de cada cuota. **Regla recomendada para proponer a CAM** (sección 15): la cuota *n* vence el mismo día de la adquisición, *n − 1* meses después; en mora si pasan 5 días de gracia sin pago verificado; sin intereses |
 | D7 | Parámetros coherentes | Se exige número de cuotas × valor de cuota = valor de la acción (24 × 750.000 = 18.000.000), porque no hay intereses |
 | D8 | Número de comprobante | `CP-000001`, consecutivo único que no se reinicia (formato de [PL]) |
 | D9 | Mensajes | Una conversación por oferta, visible para propietarios y secretaria. Muestra nombre del autor, fecha y hora; **nunca** cédula ni correo (Ley 1581) |
 | D10 | Eliminar ofertas | Solo si no tienen mensajes. Si tienen, se **retiran** |
-| D11 | Correo | Primera versión: descarga e impresión. El estado de envío se registra **solo** si el envío se intenta de verdad. El correo real se configura después, con un servicio de pruebas |
+| D11 | Correo | Primera versión: descarga e impresión. El estado de envío se registra **solo** si el envío se intenta de verdad. **2026-11-05**: la secretaria registra la entrega manual (en persona o WhatsApp), sección 15. El correo real se configura después |
 | D12 | Contraseña inicial del propietario | La secretaria asigna una contraseña temporal. El propietario debe cambiarla en su primer ingreso |
 | D13 | Propietario inactivo | No inicia sesión ni publica ofertas. Conserva adquisiciones e historial |
 | D14 | Varias secretarias | Se permiten varias cuentas con el mismo rol. Cada operación registra quién la hizo |
@@ -469,3 +469,36 @@ Observación: en una ejecución de la batería API, la prueba de comprobantes fa
 
 ### 14.5. Pendiente
 - Mora (D6): sigue requiriendo la fecha de vencimiento de cada cuota.
+
+---
+
+## 15. Entrega de comprobantes sin correo (D11) y decisiones abiertas (2026-11-05)
+
+### 15.1. Qué se construyó
+- `sql/09_entrega_comprobantes.sql` (incremental, se puede repetir): columnas `medio` (CORREO, PERSONAL, WHATSAPP) y `observacion` en `envio_comprobante`; restricción de coherencia (una entrega manual no lleva correo y siempre queda ENVIADO); `fn_registrar_entrega`, una sola vez por comprobante, con bloqueo y auditoría (`ENTREGAR`); la vista `v_comprobante_detalle` agrega `medio_entrega` y `entregado_en`.
+- API: `POST /api/comprobantes/:id/entregar` (solo secretaria).
+- Pantalla Comprobantes: botón **Marcar entregado**; la columna Envío dice *Entregado en persona* o *Enviado por WhatsApp*. La Auditoría muestra la entrega.
+- Efecto: el indicador "comprobantes pendientes de envío" del panel baja cuando se entrega el comprobante.
+
+### 15.2. Pruebas
+| Batería | Resultado | Evidencia |
+|---|---|---|
+| BD | **150/150** (11 nuevas: K09–K16, X17–X19) | `bd_2026-11-05_1242.txt` |
+| API | **67/67** (1 nueva) | `api_2026-11-05_1250.txt` |
+| Navegador | **18/18** (1 nueva, captura 15 en computador y celular) | `navegador_2026-11-05_1252.txt` |
+
+### 15.3. Decisiones revisadas y qué se hizo
+| # | Decisión | Qué se hizo | Por qué |
+|---|---|---|---|
+| D5 | Un pago = una cuota completa | Se mantiene | Los abonos parciales están fuera de alcance; varias cuotas juntas = varios pagos |
+| D6 | Mora | **No se implementa** todavía | Marcar a alguien "en mora" con una fecha supuesta podría generar cobros injustos. Regla recomendada para CAM: vencimiento mensual desde la fecha de adquisición, 5 días de gracia, sin intereses. Esfuerzo estimado: un día |
+| D11 | Correo | **Implementada** la entrega manual (15.1) | No depende de supuestos y corrige el indicador que solo crecía |
+| D16 | Cambio de titular | Se mantiene | Aprobada por la docente; falta que CAM confirme el documento de soporte (contrato de cesión) |
+
+### 15.4. Aplicación a las bases
+- `cam_db` local: respaldo `cam_db_2026-11-05_1253.dump` y script 09 aplicado dos veces sin error; se conservaron los 54 pagos y los 11 comprobantes.
+
+### 15.5. Pendiente
+- **Neon**: aplicar `sql/09` ANTES de subir el código a GitHub (Render despliega al subir y la lista de comprobantes necesita las columnas nuevas). Respaldo previo ya hecho: `neon_cam_db_2026-11-05_1254.dump`.
+- Preguntas para CAM: día de vencimiento y días de gracia (D6); si hay abonos parciales (D5); cómo entregan hoy el comprobante (D11); documento de la cesión (D16).
+

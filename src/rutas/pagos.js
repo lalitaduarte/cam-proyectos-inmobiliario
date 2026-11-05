@@ -90,7 +90,8 @@ comprobantes.get('/', async (req, res) => {
   const envio = v.opcion(req.query.estado_envio, 'estado de envío', ['PENDIENTE', 'ENVIADO', 'FALLIDO'], { opcional: true });
   res.json(await bd.filas(
     `SELECT id, numero, pago_id, emitido_en, emisor_nombre, propietario_cedula, propietario_nombre,
-            semana_numero, numero_cuota, numero_cuotas, valor, fecha_pago, estado_envio, ultimo_intento
+            semana_numero, numero_cuota, numero_cuotas, valor, fecha_pago, estado_envio, ultimo_intento,
+            medio_entrega, entregado_en
        FROM v_comprobante_detalle
       WHERE ($1::text IS NULL OR numero ILIKE '%' || $1 || '%' OR propietario_cedula LIKE $1 || '%'
              OR propietario_nombre ILIKE '%' || $1 || '%')
@@ -131,6 +132,16 @@ comprobantes.get('/:id/pdf', async (req, res) => {
 comprobantes.post('/:id/enviar', async (req, res) => {
   await buscarComprobante(v.id(req.params.id));
   throw new ErrorApp(503, 'El envío por correo aún no está configurado. Descargue el PDF y entréguelo al propietario.');
+});
+
+// POST /api/comprobantes/:id/entregar  { medio: PERSONAL|WHATSAPP, observacion? }
+// Registra que la secretaria entregó el comprobante sin correo (D11).
+comprobantes.post('/:id/entregar', async (req, res) => {
+  const id = v.id(req.params.id);
+  const medio = v.opcion(req.body.medio, 'medio de entrega', ['PERSONAL', 'WHATSAPP']);
+  const observacion = v.texto(req.body.observacion, 'observación', { max: 300, opcional: true });
+  await bd.fila('SELECT fn_registrar_entrega($1, $2, $3, $4)', [usuarioId(req), id, medio, observacion]);
+  res.status(201).json(await buscarComprobante(id));
 });
 
 module.exports = { pagos, comprobantes };

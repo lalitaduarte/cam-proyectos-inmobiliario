@@ -32,4 +32,6 @@
 \ir 07_comentarios.sql
 \echo '== 08 transferencias de titular y auditoría'
 \ir 08_transferencias_auditoria.sql
+\echo '== 09 entrega de comprobantes sin correo'
+\ir 09_entrega_comprobantes.sql
 \echo '== Listo'

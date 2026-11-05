@@ -52,3 +52,12 @@ SELECT pruebas.espera_error('X15 Trigger: reabrir una titularidad transferida',
   format($$UPDATE adquisicion SET estado_titularidad = 'VIGENTE', fecha_fin_titularidad = NULL WHERE id = %s$$, :adq_t_ant), 'CA409');
 SELECT pruebas.espera_error('X16 Trigger: cambiar el enlace al titular anterior',
   format('UPDATE adquisicion SET adquisicion_anterior_id = NULL, origen = %L WHERE id = %s', 'ASIGNACION', :adq_t), 'CA409');
+
+-- Entrega manual de comprobantes (D11, script 09): la tabla protege la coherencia
+-- aunque se salte la función.
+SELECT pruebas.espera_error('X17 Restricción: entrega manual con correo de destino',
+  format($$INSERT INTO envio_comprobante (comprobante_id, medio, correo_destino, estado, intentado_por) VALUES (%s, 'PERSONAL', 'x@ejemplo.test', 'ENVIADO', 1)$$, :cp), '23514');
+SELECT pruebas.espera_error('X18 Restricción: entrega manual marcada como FALLIDO',
+  format($$INSERT INTO envio_comprobante (comprobante_id, medio, estado, detalle_error, intentado_por) VALUES (%s, 'WHATSAPP', 'FALLIDO', 'x', 1)$$, :cp), '23514');
+SELECT pruebas.espera_error('X19 Restricción: envío por correo sin dirección',
+  format($$INSERT INTO envio_comprobante (comprobante_id, medio, estado, intentado_por) VALUES (%s, 'CORREO', 'ENVIADO', 1)$$, :cp), '23514');

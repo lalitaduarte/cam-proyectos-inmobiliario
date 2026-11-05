@@ -1,0 +1,47 @@
+RECORRIDO EN NAVEGADOR · CAM · 2026-11-05 12:52:08
+Comando: npm.cmd run test:navegador · incluye la entrega manual de comprobantes (D11), captura 15
+
+# Subtest: Ingreso incorrecto muestra un mensaje claro
+ok 1 - Ingreso incorrecto muestra un mensaje claro
+# Subtest: Ingreso de la secretaria y panel con cifras calculadas
+ok 2 - Ingreso de la secretaria y panel con cifras calculadas
+# Subtest: Propietarios: registro con contraseña temporal y rechazo de cédula duplicada
+ok 3 - Propietarios: registro con contraseña temporal y rechazo de cédula duplicada
+# Subtest: Asignar semana en dos pasos (resumen y confirmación)
+ok 4 - Asignar semana en dos pasos (resumen y confirmación)
+# Subtest: Pagos: importe incorrecto rechazado; registrar, verificar y emitir comprobante
+ok 5 - Pagos: importe incorrecto rechazado; registrar, verificar y emitir comprobante
+# Subtest: Comprobante: PDF disponible y listado
+ok 6 - Comprobante: PDF disponible y listado
+# Subtest: Comprobante: registrar la entrega por WhatsApp (D11)
+ok 7 - Comprobante: registrar la entrega por WhatsApp (D11)
+# Subtest: Estado de cuenta (DEMO Ana, semana 5): $7.500.000 abonados, 14 pendientes, saldo $10.500.000
+ok 8 - Estado de cuenta (DEMO Ana, semana 5): $7.500.000 abonados, 14 pendientes, saldo $10.500.000
+# Subtest: Reportes: consultar y exportar a Excel con los mismos filtros
+ok 9 - Reportes: consultar y exportar a Excel con los mismos filtros
+# Subtest: Semanas: fechas inválidas rechazadas y fechas válidas guardadas
+ok 10 - Semanas: fechas inválidas rechazadas y fechas válidas guardadas
+# Subtest: Parámetros y supervisión de la comunidad cargan
+ok 11 - Parámetros y supervisión de la comunidad cargan
+# Subtest: Cambio de titular en dos pasos: el nuevo titular asume el saldo (semana 12, pagada)
+ok 12 - Cambio de titular en dos pasos: el nuevo titular asume el saldo (semana 12, pagada)
+# Subtest: Auditoría: muestra el cambio de titular con quién, cuándo y el soporte
+ok 13 - Auditoría: muestra el cambio de titular con quién, cuándo y el soporte
+# Subtest: Cerrar sesión
+ok 14 - Cerrar sesión
+# Subtest: Propietario: solo ve la comunidad; las rutas administrativas lo devuelven a ella
+ok 15 - Propietario: solo ve la comunidad; las rutas administrativas lo devuelven a ella
+# Subtest: Propietario: publica una venta (precio 0 rechazado), conversa y la retira
+ok 16 - Propietario: publica una venta (precio 0 rechazado), conversa y la retira
+# Subtest: Propietario nuevo: la contraseña temporal obliga a cambiarla
+ok 17 - Propietario nuevo: la contraseña temporal obliga a cambiarla
+# Subtest: Sin errores de JavaScript ni violaciones de seguridad en la consola
+ok 18 - Sin errores de JavaScript ni violaciones de seguridad en la consola
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 66473.5847

@@ -144,6 +144,27 @@ SELECT fn_registrar_envio(:sec, :cp1, 'prueba.uno@ejemplo.test', 'FALLIDO', 'PRU
 SELECT pruebas.afirma('K08 Envío fallido queda FALLIDO (no se marca enviado)',
   (SELECT estado_envio = 'FALLIDO' FROM v_comprobante_detalle WHERE id = :cp1));
 
+-- Entrega manual del comprobante (D11, script 09)
+SELECT pruebas.espera_error('K09 Entrega con medio inválido',
+  format($$SELECT fn_registrar_entrega(%s, %s, 'CORREO')$$, :sec, :cp1), 'CA400');
+SELECT pruebas.espera_error('K10 Un propietario no registra entregas',
+  format($$SELECT fn_registrar_entrega(%s, %s, 'PERSONAL')$$, :u_ana, :cp1), 'CA403');
+SELECT pruebas.espera_error('K11 Entrega de un comprobante inexistente',
+  format($$SELECT fn_registrar_entrega(%s, 999999, 'PERSONAL')$$, :sec), 'CA404');
+SELECT pruebas.espera_error('K12 cam_app no inserta entregas directamente en la tabla',
+  format($$INSERT INTO envio_comprobante (comprobante_id, medio, estado, intentado_por) VALUES (%s, 'PERSONAL', 'ENVIADO', %s)$$, :cp1, :sec), '42501');
+SELECT fn_registrar_entrega(:sec, :cp1, 'WHATSAPP', '  PRUEBA recibido por el propietario  ');
+SELECT pruebas.afirma('K13 Tras la entrega manual queda ENVIADO, con medio y fecha',
+  (SELECT estado_envio = 'ENVIADO' AND medio_entrega = 'WHATSAPP' AND entregado_en IS NOT NULL FROM v_comprobante_detalle WHERE id = :cp1));
+SELECT pruebas.afirma('K14 La entrega guarda quién la registró, sin correo y con la observación recortada',
+  (SELECT intentado_por = :sec AND correo_destino IS NULL AND observacion = 'PRUEBA recibido por el propietario'
+     FROM envio_comprobante WHERE comprobante_id = :cp1 AND medio = 'WHATSAPP'));
+SELECT pruebas.espera_error('K15 No se registra dos veces la entrega',
+  format($$SELECT fn_registrar_entrega(%s, %s, 'PERSONAL')$$, :sec, :cp1), 'CA409');
+SELECT pruebas.afirma('K16 La entrega queda en la auditoría',
+  EXISTS (SELECT 1 FROM auditoria WHERE accion = 'ENTREGAR' AND tabla = 'comprobante' AND registro_id = :cp1
+             AND usuario_id = :sec AND detalle->>'medio' = 'WHATSAPP'));
+
 -- Anulación lógica
 SELECT fn_registrar_pago(:sec, :adq1, 2, 750000, current_date - 270, 'PRUEBA-error') AS pago2 \gset
 SELECT pruebas.espera_error('N01 Anular sin motivo',

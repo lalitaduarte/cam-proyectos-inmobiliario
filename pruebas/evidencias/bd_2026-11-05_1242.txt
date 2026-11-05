@@ -1,0 +1,159 @@
+PRUEBAS DE BASE DE DATOS · CAM · 2026-11-05 12:44:06
+Servidor: PostgreSQL 18.2 on x86_64-windows, compiled by msvc-19.44.35222, 64-bit
+Base: cam_test (reconstruida desde sql/ejecutar_todo.sql)
+
+  #  | resultado |                                                     caso                                                      |                                                        detalle                                                         
+-----+-----------+---------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------
+   1 | PASA      | P01 Propietario con cédula duplicada                                                                          | 23505 · llave duplicada viola restricción de unicidad «propietario_cedula_uq»
+   2 | PASA      | P02 Propietario con correo duplicado (otra mayúscula)                                                         | 23505 · llave duplicada viola restricción de unicidad «propietario_correo_uq»
+   3 | PASA      | P03 Cédula con letras                                                                                         | 23514 · el nuevo registro para la relación «propietario» viola la restricción «check» «propietario_cedula_formato»
+   4 | PASA      | P04 Correo inválido                                                                                           | 23514 · el nuevo registro para la relación «propietario» viola la restricción «check» «propietario_correo_formato»
+   5 | PASA      | P05 Registro válido de propietario (cédula guardada como texto)                                               | 
+   6 | PASA      | S01 Semana con salida igual a la entrada                                                                      | 23514 · el nuevo registro para la relación «semana_fecha» viola la restricción «check» «semana_fecha_salida_mayor»
+   7 | PASA      | S02 Semana con salida anterior a la entrada                                                                   | 23514 · el nuevo registro para la relación «semana_fecha» viola la restricción «check» «semana_fecha_salida_mayor»
+   8 | PASA      | S03 Fechas que se cruzan con otra semana                                                                      | 23P01 · llave en conflicto viola la restricción de exclusión «semana_fecha_sin_traslape»
+   9 | PASA      | S04 Número de semana repetido                                                                                 | 23505 · llave duplicada viola restricción de unicidad «semana_numero_uq»
+  10 | PASA      | S05 Número de semana fuera de 1..52                                                                           | 23514 · el nuevo registro para la relación «semana» viola la restricción «check» «semana_numero_rango»
+  11 | PASA      | A01 Asignar semana que ya tiene titular (semana 5)                                                            | CA409 · La semana 5 ya tiene titular actual (DEMO Ana María Pérez Rojas).
+  12 | PASA      | A02 Asignar a propietario inactivo                                                                            | CA409 · El propietario está inactivo.
+  13 | PASA      | A03 Fecha de adquisición futura                                                                               | CA400 · La fecha de adquisición es obligatoria y no puede ser futura.
+  14 | PASA      | A04 Propietario sin rol de secretaria no puede asignar                                                        | CA403 · Su rol no permite realizar esta operación.
+  15 | PASA      | A05 cam_app no puede insertar adquisiciones directamente                                                      | 42501 · permiso denegado a la tabla adquisicion
+  16 | PASA      | A06 Adquisición válida copia las condiciones vigentes                                                         | 
+  17 | PASA      | A07 Un propietario con dos semanas tiene dos planes separados                                                 | 
+  18 | PASA      | G01 Pago válido: queda NO_VERIFICADO, con usuario y fecha del servidor                                        | 
+  19 | PASA      | G02 Cuota repetida en la misma adquisición                                                                    | CA409 · La cuota 1 de esta adquisición ya tiene un pago registrado.
+  20 | PASA      | G03 Cuota 25 (fuera del plan de 24)                                                                           | CA400 · La cuota debe estar entre 1 y 24.
+  21 | PASA      | G04 Cuota 0                                                                                                   | CA400 · La cuota debe estar entre 1 y 24.
+  22 | PASA      | G05 Valor cero                                                                                                | CA400 · El valor del pago debe ser mayor que cero.
+  23 | PASA      | G06 Valor negativo                                                                                            | CA400 · El valor del pago debe ser mayor que cero.
+  24 | PASA      | G07 Importe distinto a la cuota completa ($700.000)                                                           | CA400 · El valor debe ser el de la cuota completa: $750.000.
+  25 | PASA      | G08 Fecha de pago futura                                                                                      | CA400 · La fecha del pago es obligatoria y no puede ser futura.
+  26 | PASA      | G09 Adquisición inexistente                                                                                   | CA404 · La adquisición no existe.
+  27 | PASA      | G10 Un propietario no puede registrar pagos                                                                   | CA403 · Su rol no permite realizar esta operación.
+  28 | PASA      | G11 cam_app no puede insertar pagos directamente                                                              | 42501 · permiso denegado a la tabla pago
+  29 | PASA      | G12 cam_app no puede modificar pagos directamente                                                             | 42501 · permiso denegado a la tabla pago
+  30 | PASA      | G13 cam_app no puede eliminar pagos                                                                           | 42501 · permiso denegado a la tabla pago
+  31 | PASA      | V01 No se emite comprobante de un pago sin verificar                                                          | CA409 · Solo se emiten comprobantes de pagos verificados.
+  32 | PASA      | V02 Verificación guarda usuario y fecha                                                                       | 
+  33 | PASA      | V03 Verificar dos veces                                                                                       | CA409 · El pago ya estaba verificado.
+  34 | PASA      | K01 Comprobante con número CP-, empresa y aclaración                                                          | 
+  35 | PASA      | K02 Segundo comprobante para el mismo pago                                                                    | CA409 · Este pago ya tiene el comprobante CP-000012.
+  36 | PASA      | K03 Anular un pago con comprobante                                                                            | CA409 · El pago tiene comprobante emitido; no se puede anular ni modificar.
+  37 | PASA      | K04 Revertir verificación de un pago con comprobante                                                          | CA409 · El pago tiene comprobante emitido; no se puede modificar.
+  38 | PASA      | K05 cam_app no puede modificar comprobantes                                                                   | 42501 · permiso denegado a la tabla comprobante
+  39 | PASA      | K06 El comprobante conserva el nombre original tras editar el propietario                                     | 
+  40 | PASA      | K07 Comprobante nace pendiente de envío                                                                       | 
+  41 | PASA      | K08 Envío fallido queda FALLIDO (no se marca enviado)                                                         | 
+  42 | PASA      | K09 Entrega con medio inválido                                                                                | CA400 · Medio de entrega inválido: PERSONAL o WHATSAPP.
+  43 | PASA      | K10 Un propietario no registra entregas                                                                       | CA403 · Su rol no permite realizar esta operación.
+  44 | PASA      | K11 Entrega de un comprobante inexistente                                                                     | CA404 · El comprobante no existe.
+  45 | PASA      | K12 cam_app no inserta entregas directamente en la tabla                                                      | 42501 · permiso denegado a la tabla envio_comprobante
+  46 | PASA      | K13 Tras la entrega manual queda ENVIADO, con medio y fecha                                                   | 
+  47 | PASA      | K14 La entrega guarda quién la registró, sin correo y con la observación recortada                            | 
+  48 | PASA      | K15 No se registra dos veces la entrega                                                                       | CA409 · Este comprobante ya figura como entregado.
+  49 | PASA      | K16 La entrega queda en la auditoría                                                                          | 
+  50 | PASA      | N01 Anular sin motivo                                                                                         | CA400 · Escriba el motivo de la anulación (mínimo 5 caracteres).
+  51 | PASA      | N02 Pago anulado conserva historial (usuario, fecha y motivo)                                                 | 
+  52 | PASA      | N03 La cuota anulada se puede registrar de nuevo                                                              | 
+  53 | PASA      | N04 Un pago anulado no se puede verificar                                                                     | CA409 · No se puede verificar un pago anulado.
+  54 | PASA      | E01 10 cuotas verificadas: abonado $7.500.000, 14 pendientes, saldo $10.500.000                               | abonado=7500000.00 pendientes=14 saldo=10500000.00
+  55 | PASA      | E02 Los 2 pagos sin verificar se ven como registrados pero NO bajan el saldo                                  | 
+  56 | PASA      | E03 El plan de cuotas muestra 10 PAGADA, 2 POR_VERIFICAR y 12 PENDIENTE                                       | 
+  57 | PASA      | E04 Cada adquisición de un mismo propietario tiene su propio saldo                                            | 
+  58 | PASA      | E05 Adquisición pagada por completo conserva su titular                                                       | 
+  59 | PASA      | E06 No se puede asignar la semana 12 aunque esté pagada                                                       | CA409 · La semana 12 ya tiene titular actual (DEMO Carlos Andrés Ruiz Gómez).
+  60 | PASA      | R01 Parámetros incoherentes (24 × $700.000 ≠ $18.000.000)                                                     | CA400 · El número de cuotas por el valor de la cuota ($16.800.000) debe ser igual al valor de la acción ($18.000.000).
+  61 | PASA      | R02 Un propietario no puede cambiar parámetros                                                                | CA403 · Su rol no permite realizar esta operación.
+  62 | PASA      | R03 La nueva adquisición toma $20.000.000 / 20 / $1.000.000                                                   | 
+  63 | PASA      | R04 Las adquisiciones anteriores conservan $18.000.000 / 24 / $750.000                                        | 
+  64 | PASA      | R05 Los pagos históricos no cambian                                                                           | 
+  65 | PASA      | R06 Adquisición antigua sigue exigiendo cuota de $750.000                                                     | CA400 · El valor debe ser el de la cuota completa: $750.000.
+  66 | PASA      | R07 Adquisición nueva: la cuota 21 está fuera de su plan de 20                                                | CA400 · La cuota debe estar entre 1 y 20.
+  67 | PASA      | C01 Ofertar una semana ajena (Ana oferta la semana 12 de Carlos)                                              | CA403 · Solo puede ofertar semanas de las que es titular actual.
+  68 | PASA      | C02 Intercambio con precio                                                                                    | CA400 · Una oferta de intercambio no lleva precio.
+  69 | PASA      | C03 Venta sin precio                                                                                          | CA400 · Una oferta de venta requiere un precio mayor que cero.
+  70 | PASA      | C04 Venta con precio cero                                                                                     | CA400 · Una oferta de venta requiere un precio mayor que cero.
+  71 | PASA      | C05 La secretaria no publica ofertas                                                                          | CA403 · Su rol no permite realizar esta operación.
+  72 | PASA      | C06 Propietario inactivo no puede publicar                                                                    | CA403 · Usuario no autorizado.
+  73 | PASA      | C07 Intercambio sin precio sobre semana propia: publicado y ACTIVO                                            | 
+  74 | PASA      | C08 Segunda oferta activa para la misma semana                                                                | CA409 · Esta semana ya tiene una oferta activa.
+  75 | PASA      | C09 Carlos no puede retirar la oferta de Ana                                                                  | CA403 · Solo puede cerrar sus propias ofertas.
+  76 | PASA      | C10 Mensaje en oferta activa queda registrado                                                                 | 
+  77 | PASA      | C11 cam_app no puede insertar mensajes directamente                                                           | 42501 · permiso denegado a la tabla mensaje
+  78 | PASA      | C12 Mensaje en oferta CONCRETADA                                                                              | CA409 · La oferta está cerrada; no admite mensajes nuevos.
+  79 | PASA      | C13 Concretar la oferta NO transfiere la titularidad                                                          | 
+  80 | PASA      | C14 Mensaje en oferta RETIRADA (DEMO Diana)                                                                   | CA409 · La oferta está cerrada; no admite mensajes nuevos.
+  81 | PASA      | C15 Eliminar oferta que tiene mensajes                                                                        | CA409 · La oferta tiene mensajes; no se puede eliminar, solo retirar.
+  82 | PASA      | C16 La vista de ofertas no expone cédula ni correo                                                            | 
+  83 | PASA      | D01 No se elimina un propietario con adquisiciones                                                            | CA409 · El propietario tiene adquisiciones registradas; no se puede eliminar. Puede desactivarlo.
+  84 | PASA      | D02 cam_app no tiene DELETE directo sobre propietarios                                                        | 42501 · permiso denegado a la tabla propietario
+  85 | PASA      | D03 Propietario sin historial se puede eliminar                                                               | 
+  86 | PASA      | U01 Contraseña en texto plano es rechazada                                                                    | 23514 · el nuevo registro para la relación «usuario» viola la restricción «check» «usuario_hash_bcrypt»
+  87 | PASA      | U02 cam_app no puede cambiar el rol de una cuenta                                                             | 42501 · permiso denegado a la tabla usuario
+  88 | PASA      | U03 cam_app no puede crear tablas                                                                             | 42501 · permiso denegado al esquema cam
+  89 | PASA      | U04 cam_app no puede borrar tablas                                                                            | 42501 · debe ser dueño de la tabla pago
+  90 | PASA      | U05 Ningún hash es legible: todos tienen formato bcrypt                                                       | 
+  91 | PASA      | U06 Usuario desactivado no puede operar                                                                       | CA403 · Usuario no autorizado.
+  92 | PASA      | T01 Sin pago en oct-2026: excluye a quien pagó en octubre (DEMO Gabriel, semana 45)                           | 
+  93 | PASA      | T02 Sin pago en oct-2026: excluye adquisiciones con todas las cuotas registradas (semana 12)                  | 
+  94 | PASA      | T03 Sin pago en oct-2026: incluye a DEMO Esteban (semana 22, sin pagos)                                       | 
+  95 | PASA      | T04 Recaudo mensual = suma de pagos no anulados                                                               | 
+  96 | PASA      | T05 Panel: saldo por cobrar = suma de saldos de adquisiciones vigentes                                        | 
+  97 | PASA      | T06 Auditoría registra quién hizo cada operación                                                              | 
+  98 | PASA      | TT01 No se transfiere con pagos sin verificar (cuota 6)                                                       | CA409 · El titular actual tiene 1 pago(s) sin verificar. Verifíquelos o anúlelos antes de transferir.
+  99 | PASA      | TT02 No se transfiere al mismo titular                                                                        | CA409 · El nuevo titular es el mismo titular actual.
+ 100 | PASA      | TT03 Fecha de transferencia futura                                                                            | CA400 · La fecha de la transferencia es obligatoria y no puede ser futura.
+ 101 | PASA      | TT04 Fecha anterior a la adquisición del titular actual                                                       | CA400 · La fecha de la transferencia no puede ser anterior a la adquisición del titular actual.
+ 102 | PASA      | TT05 Fecha anterior a pagos del titular actual                                                                | CA400 · Hay pagos del titular actual con fecha posterior a la transferencia. Revise la fecha.
+ 103 | PASA      | TT06 Un propietario no puede transferir (solo la secretaria)                                                  | CA403 · Su rol no permite realizar esta operación.
+ 104 | PASA      | TT07 Tipo de transferencia inválido                                                                           | CA400 · El tipo debe ser VENTA, CESION, INTERCAMBIO u OTRO.
+ 105 | PASA      | TT08 Soporte obligatorio                                                                                      | CA400 · Escriba el soporte de la transferencia (mínimo 5 caracteres), por ejemplo el número del contrato o documento.
+ 106 | PASA      | TT09 cam_app no puede cambiar el titular directamente en la tabla                                             | 42501 · permiso denegado a la tabla adquisicion
+ 107 | PASA      | TT10 La adquisición anterior queda TRANSFERIDA con fecha de fin                                               | 
+ 108 | PASA      | TT11 La nueva adquisición: vigente, mismas condiciones, enlazada, origen VENTA                                | 
+ 109 | PASA      | TT12 Estado de cuenta del nuevo titular: 6 pagadas (heredadas), 18 pendientes, saldo $13.500.000              | 
+ 110 | PASA      | TT13 Plan de cuotas: 1-6 pagadas por el titular anterior, 7-24 pendientes                                     | 
+ 111 | PASA      | TT14 Los pagos siguen a nombre del titular anterior (historial)                                               | 
+ 112 | PASA      | TT15 La oferta activa de la semana quedó CONCRETADA                                                           | 
+ 113 | PASA      | TT16 La semana tiene un solo titular vigente: el Cesionario                                                   | 
+ 114 | PASA      | TT17 No se cobra dos veces: cuota 3 ya pagada por el titular anterior                                         | CA409 · La cuota 3 ya la pagó un titular anterior de esta semana.
+ 115 | PASA      | TT18 La adquisición transferida no admite pagos                                                               | CA409 · La adquisición no está vigente; no admite pagos.
+ 116 | PASA      | TT19 No se anula un pago del titular anterior                                                                 | CA409 · Este pago es de un titular anterior (la semana fue transferida); no se puede modificar.
+ 117 | PASA      | TT20 No se revierte la verificación de un pago del titular anterior                                           | CA409 · Este pago es de un titular anterior (la semana fue transferida); no se puede modificar.
+ 118 | PASA      | TT21 Una adquisición ya transferida no se transfiere otra vez                                                 | CA409 · Esta adquisición ya fue transferida; solo se transfiere la del titular actual.
+ 119 | PASA      | TT22 El titular anterior ya no puede ofertar la semana                                                        | CA403 · Solo puede ofertar semanas de las que es titular actual.
+ 120 | PASA      | TT23 El nuevo titular paga la cuota 7: 7 registradas, 6 verificadas                                           | 
+ 121 | PASA      | TT24 Auditoría: TRANSFERIR con de, a, tipo y saldo asumido $13.500.000                                        | 
+ 122 | PASA      | TT25 Tras la cesión: 7 pagadas heredadas de dos titulares, saldo $12.750.000                                  | 
+ 123 | PASA      | TT26 Historial de la semana: tres titulares en orden, con su titular anterior                                 | 
+ 124 | PASA      | TT27 Panel: el saldo por cobrar cuenta la semana una sola vez                                                 | 
+ 125 | PASA      | TT28 Vista de auditoría muestra el nombre de quien transfirió                                                 | 
+ 126 | PASA      | TT29 cam_app no puede borrar la auditoría                                                                     | 42501 · permiso denegado a la tabla auditoria
+ 127 | PASA      | TT30 cam_app no puede modificar la auditoría                                                                  | 42501 · permiso denegado a la tabla auditoria
+ 128 | PASA      | X01 Trigger: modificar un pago con comprobante                                                                | CA409 · El pago tiene comprobante emitido; no se puede anular ni modificar.
+ 129 | PASA      | X02 Trigger: eliminar un pago                                                                                 | CA409 · Los pagos no se eliminan; se anulan conservando el historial.
+ 130 | PASA      | X03 Trigger: cambiar el valor de un pago sin comprobante                                                      | CA409 · Los datos del pago no se editan; anúlelo y regístrelo de nuevo.
+ 131 | PASA      | X04 Trigger: modificar un comprobante                                                                         | CA409 · Los registros de comprobante no se pueden modificar ni eliminar.
+ 132 | PASA      | X05 Trigger: eliminar un comprobante                                                                          | CA409 · Los registros de comprobante no se pueden modificar ni eliminar.
+ 133 | PASA      | X06 Trigger: modificar parámetros históricos                                                                  | CA409 · Los registros de parametro_accion no se pueden modificar ni eliminar.
+ 134 | PASA      | X07 Trigger: cambiar condiciones de una adquisición                                                           | CA409 · Las condiciones y partes de una adquisición no se modifican.
+ 135 | PASA      | X08 Trigger: eliminar una adquisición                                                                         | CA409 · Las adquisiciones no se eliminan; conservan el historial.
+ 136 | PASA      | X09 Trigger: insertar cuota 30 directo en la tabla                                                            | CA400 · La cuota debe estar entre 1 y 24.
+ 137 | PASA      | X10 Índice único: segundo titular vigente directo en la tabla                                                 | 23505 · llave duplicada viola restricción de unicidad «adquisicion_titular_vigente_uq»
+ 138 | PASA      | X11 Índice único: misma cuota dos veces directo en la tabla                                                   | 23505 · llave duplicada viola restricción de unicidad «pago_cuota_unica_uq»
+ 139 | PASA      | X12 Mensaje directo en oferta cerrada                                                                         | CA409 · La oferta está cerrada; no admite mensajes nuevos.
+ 140 | PASA      | X13 CHECK: oferta de intercambio con precio directo en la tabla                                               | 23514 · el nuevo registro para la relación «oferta» viola la restricción «check» «oferta_precio_segun_tipo»
+ 141 | PASA      | X14 Trigger: insertar directo una cuota ya pagada por un titular anterior                                     | CA409 · La cuota 2 ya la pagó un titular anterior de esta semana.
+ 142 | PASA      | X15 Trigger: reabrir una titularidad transferida                                                              | CA409 · Una titularidad transferida no se reabre.
+ 143 | PASA      | X16 Trigger: cambiar el enlace al titular anterior                                                            | CA409 · Las condiciones y partes de una adquisición no se modifican.
+ 144 | PASA      | X17 Restricción: entrega manual con correo de destino                                                         | 23514 · el nuevo registro para la relación «envio_comprobante» viola la restricción «check» «envio_medio_coherente»
+ 145 | PASA      | X18 Restricción: entrega manual marcada como FALLIDO                                                          | 23514 · el nuevo registro para la relación «envio_comprobante» viola la restricción «check» «envio_medio_coherente»
+ 146 | PASA      | X19 Restricción: envío por correo sin dirección                                                               | 23514 · el nuevo registro para la relación «envio_comprobante» viola la restricción «check» «envio_medio_coherente»
+ 147 | PASA      | Z01 Concurrencia: 10 registros simultáneos de la misma cuota -> 1 éxito, 9 rechazos                           | éxitos=1 rechazos=9 filas=1
+ 148 | PASA      | Z02 Concurrencia: 5 asignaciones simultáneas de la misma semana -> 1 titular                                  | éxitos=1 titulares=1
+ 149 | PASA      | Z03 Concurrencia: 10 emisiones simultáneas (8 pagos distintos) -> 8 comprobantes, números únicos y sin saltos | nuevos=8 unicos_sin_saltos=t
+ 150 | PASA      | Z04 Bloqueo: la segunda sesión espera a la primera (≈2 s) y luego recibe CA409                                | espera_ms=2810 rechazo=1
+(150 filas)
+
+TOTAL: 150 pruebas · 150 pasan · 0 fallan

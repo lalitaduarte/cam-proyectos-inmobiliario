@@ -142,6 +142,22 @@ test('Comprobante: PDF disponible y listado', async () => {
   await capturar('05-comprobantes', { movil: true });
 });
 
+test('Comprobante: registrar la entrega por WhatsApp (D11)', async () => {
+  await nav.escribir('input[type=search]', datos.comprobante);
+  await nav.esperarTexto('1 comprobante(s)');
+  await nav.clic('Marcar entregado');
+  await nav.esperarTexto(`Registrar entrega de ${datos.comprobante}`);
+  await nav.elegir('#dialogo select[name=medio]', 'WhatsApp');
+  await nav.escribir('#dialogo input[name=observacion]', 'PRUEBA-NAV enviado al celular');
+  await nav.clic('Registrar entrega', '#dialogo');
+  await nav.esperarTexto(`Entrega de ${datos.comprobante} registrada.`);
+  await nav.esperarTexto('Enviado por WhatsApp');
+  await capturar('15-comprobante-entregado');
+  await capturar('15-comprobante-entregado', { movil: true });
+  assert.equal(consultaDirecta(`SELECT e.medio || '|' || e.observacion FROM cam.envio_comprobante e JOIN cam.comprobante c ON c.id = e.comprobante_id WHERE c.numero = '${datos.comprobante}'`),
+    'WHATSAPP|PRUEBA-NAV enviado al celular');
+});
+
 test('Estado de cuenta (DEMO Ana, semana 5): $7.500.000 abonados, 14 pendientes, saldo $10.500.000', async () => {
   await ir('#/estado-cuenta');
   await nav.escribir('input[type=search]', '900000101');

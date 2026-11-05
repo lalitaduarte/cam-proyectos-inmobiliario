@@ -40,7 +40,7 @@ Todas las baterías se ejecutan sobre la base de pruebas `cam_test`, nunca sobre
 | FUN-PAG-04 | Historial de pagos ordenado | Plan de cuotas ordenado por número; reporte de historial | API 29, 41; VOL | Cumplido |
 | FUN-PAG-05 | Anular registros erróneos, salvo si tienen comprobante | Anulación con motivo e historial (D4); triggers impiden borrar | API 27, 28; BD-N, BD-X | Cumplido con ajuste (D4: anulación con historial, no borrado) |
 | FUN-CMP-01 | Comprobante con número único, máximo uno por pago | `fn_emitir_comprobante`, consecutivo sin saltos, PDF | API 24, 25, 26; BD-K, BD-Z; NAV 6 | Cumplido |
-| FUN-CMP-02 | Enviar comprobante por correo y registrar el estado | Tabla `envio_comprobante` lista; el envío **no** se simula | API 27 | **Parcial**: falta configurar un servicio de correo (D11). Mientras tanto, PDF para descargar o imprimir |
+| FUN-CMP-02 | Enviar comprobante por correo y registrar el estado | Tabla `envio_comprobante`; el correo **no** se simula. Entrega manual (en persona o WhatsApp) con `fn_registrar_entrega` (script 09) | API 27 y entrega manual; BD-K09–K16, X17–X19; NAV 7 | **Parcial**: el estado de entrega se registra (D11); falta configurar un servicio de correo para el envío automático |
 | FUN-EDC-01 | Estado de cuenta: 10 cuotas = $7.500.000 / 14 / $10.500.000 | `v_estado_cuenta` (solo pagos verificados, D2) | API 29, 30; BD-E; NAV 7 | Cumplido |
 | FUN-EDC-02 | Recaudo mensual: sin pago en el mes y pagos sin verificar | `fn_sin_pago_en_mes` y reporte "por verificar" | API 40, 42 | Cumplido con ajuste (C10: se llama "sin pago en el mes", no "mora") |
 | FUN-COM-01 | Publicar oferta propia; precio solo en venta | `fn_publicar_oferta` | API 47, 48, 55; BD-C; NAV 13 | Cumplido |

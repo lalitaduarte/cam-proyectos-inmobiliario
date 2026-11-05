@@ -1,9 +1,9 @@
 # Diccionario de datos — CAM
 
-Generado automáticamente desde la base `cam_db` (PostgreSQL, esquema `cam`) el 4 de noviembre de 2026, con `npm.cmd run diccionario`.
+Generado automáticamente desde la base `cam_db` (PostgreSQL, esquema `cam`) el 5 de noviembre de 2026, con `npm.cmd run diccionario`.
 Las descripciones están guardadas en la propia base (`sql/07_comentarios.sql`). Diagrama: [diagrama_er.md](diagrama_er.md).
 
-**Contenido:** 14 tablas, 13 vistas, 26 funciones.
+**Contenido:** 14 tablas, 13 vistas, 27 funciones.
 
 Convenciones: *Obligatorio* = la columna no admite valores vacíos (NOT NULL). Los valores en pesos usan `numeric(14,2)`.
 Las fechas y horas (`timestamptz`) se muestran en la zona America/Bogota.
@@ -152,16 +152,20 @@ Intentos de envío de comprobantes por correo, con su resultado. No se modifica.
 |---|---|---|---|---|
 | `id` | bigint | Sí | identidad (automático) | Identificador interno. |
 | `comprobante_id` | bigint | Sí | — | Comprobante enviado. |
-| `correo_destino` | character varying(254) | Sí | — | Correo al que se intentó enviar. |
+| `correo_destino` | character varying(254) | No | — | Correo al que se intentó enviar. Vacío en las entregas manuales. |
 | `estado` | character varying(10) | Sí | — | Resultado del intento: ENVIADO o FALLIDO. |
 | `detalle_error` | character varying(500) | No | — | Motivo del fallo, si lo hubo. |
 | `intentado_en` | timestamp with time zone | Sí | now() | Fecha y hora del intento. |
 | `intentado_por` | bigint | Sí | — | Usuario que lo intentó. |
+| `medio` | character varying(10) | Sí | 'CORREO'::character varying | Cómo se entregó: CORREO (envío real), PERSONAL o WHATSAPP (entrega manual registrada por la secretaria, D11). |
+| `observacion` | character varying(300) | No | — | Nota opcional de la entrega manual (por ejemplo, a quién se entregó). |
 
 **Reglas en la base:**
 
 - Validación (CHECK) `envio_error_coherente`: `CHECK ((((estado)::text = 'FALLIDO'::text) = (detalle_error IS NOT NULL)))`
 - Validación (CHECK) `envio_estado_valido`: `CHECK (((estado)::text = ANY ((ARRAY['ENVIADO'::character varying, 'FALLIDO'::character varying])::text[])))`
+- Validación (CHECK) `envio_medio_coherente`: `CHECK (((((medio)::text = 'CORREO'::text) = (correo_destino IS NOT NULL)) AND (((medio)::text = 'CORREO'::text) OR ((estado)::text = 'ENVIADO'::text))))`
+- Validación (CHECK) `envio_medio_valido`: `CHECK (((medio)::text = ANY ((ARRAY['CORREO'::character varying, 'PERSONAL'::character varying, 'WHATSAPP'::character varying])::text[])))`
 - Llave foránea `envio_comprobante_comprobante_id_fkey`: `FOREIGN KEY (comprobante_id) REFERENCES comprobante(id)`
 - Llave foránea `envio_comprobante_intentado_por_fkey`: `FOREIGN KEY (intentado_por) REFERENCES usuario(id)`
 - Llave primaria `envio_comprobante_pkey`: `PRIMARY KEY (id)`
@@ -422,9 +426,9 @@ Columnas: `id`, `ocurrido_en`, `usuario_id`, `usuario_nombre`, `usuario_login`, 
 
 ### v_comprobante_detalle
 
-Comprobantes con su estado de envío: ENVIADO, FALLIDO o PENDIENTE (sin intentos), y el último intento.
+Comprobantes con su estado de envío (ENVIADO, FALLIDO o PENDIENTE sin intentos), el último intento y el medio y fecha de la entrega exitosa.
 
-Columnas: `id`, `consecutivo`, `numero`, `pago_id`, `emitido_en`, `emitido_por`, `empresa`, `emisor_nombre`, `propietario_cedula`, `propietario_nombre`, `propietario_correo`, `semana_numero`, `numero_cuota`, `numero_cuotas`, `valor`, `fecha_pago`, `total_abonado`, `cuotas_pendientes`, `saldo`, `nota`, `estado_envio`, `ultimo_intento`
+Columnas: `id`, `consecutivo`, `numero`, `pago_id`, `emitido_en`, `emitido_por`, `empresa`, `emisor_nombre`, `propietario_cedula`, `propietario_nombre`, `propietario_correo`, `semana_numero`, `numero_cuota`, `numero_cuotas`, `valor`, `fecha_pago`, `total_abonado`, `cuotas_pendientes`, `saldo`, `nota`, `estado_envio`, `ultimo_intento`, `medio_entrega`, `entregado_en`
 
 ### v_estado_cuenta
 
@@ -507,6 +511,7 @@ Las operaciones de negocio son funciones *SECURITY DEFINER*: se ejecutan con los
 | `fn_nuevo_parametro` | p_usuario_id bigint, p_valor_accion numeric, p_numero_cuotas integer, p_valor_cuota numeric | bigint | SECURITY DEFINER |
 | `fn_pesos` | p numeric | text | normal |
 | `fn_publicar_oferta` | p_usuario_id bigint, p_adquisicion_id bigint, p_tipo text, p_precio numeric, p_descripcion text | bigint | SECURITY DEFINER |
+| `fn_registrar_entrega` | p_usuario_id bigint, p_comprobante_id bigint, p_medio text, p_observacion text | bigint | SECURITY DEFINER |
 | `fn_registrar_envio` | p_usuario_id bigint, p_comprobante_id bigint, p_correo text, p_estado text, p_detalle_error text | bigint | SECURITY DEFINER |
 | `fn_registrar_pago` | p_usuario_id bigint, p_adquisicion_id bigint, p_numero_cuota integer, p_valor numeric, p_fecha_pago date, p_referencia text | bigint | SECURITY DEFINER |
 | `fn_revertir_verificacion` | p_usuario_id bigint, p_pago_id bigint, p_motivo text | void | SECURITY DEFINER |

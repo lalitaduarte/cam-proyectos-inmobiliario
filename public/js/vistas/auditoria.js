@@ -7,7 +7,7 @@ const ACCIONES = {
   CREAR: 'Creación', EDITAR: 'Edición', ELIMINAR: 'Eliminación', ACTIVAR: 'Activación', DESACTIVAR: 'Desactivación',
   REGISTRAR: 'Pago registrado', VERIFICAR: 'Pago verificado', REVERTIR_VERIFICACION: 'Verificación revertida', ANULAR: 'Pago anulado',
   EMITIR: 'Comprobante emitido', PUBLICAR: 'Oferta publicada', RETIRADA: 'Oferta retirada', CONCRETADA: 'Oferta concretada',
-  TRANSFERIR: 'Cambio de titular',
+  TRANSFERIR: 'Cambio de titular', ENTREGAR: 'Comprobante entregado',
 };
 const TABLAS = {
   usuario: 'Cuenta de usuario', propietario: 'Propietario', semana: 'Semana', semana_fecha: 'Fechas de semana',
@@ -26,6 +26,7 @@ function describir(r) {
     case 'REGISTRAR:pago': return `Cuota ${d.cuota} por ${pesos(d.valor)} (adquisición ${d.adquisicion_id}).`;
     case 'ANULAR:pago': case 'REVERTIR_VERIFICACION:pago': return `Pago ${r.registro_id}. Motivo: ${d.motivo}.`;
     case 'EMITIR:comprobante': return `Comprobante ${d.numero} del pago ${d.pago_id}.`;
+    case 'ENTREGAR:comprobante': return `Comprobante ${d.numero} entregado ${d.medio === 'WHATSAPP' ? 'por WhatsApp' : 'en persona'}.`;
     case 'CREAR:adquisicion': return `Semana ${d.semana} asignada (propietario ${d.propietario_id}).`;
     case 'CREAR:parametro_accion': return `${pesos(d.valor_accion)} en ${d.numero_cuotas} cuotas de ${pesos(d.valor_cuota)}.`;
     case 'CREAR:propietario': return `Propietario ${r.registro_id}${d.cedula ? `, C.C. ${d.cedula}` : ''}.`;
