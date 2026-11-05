@@ -195,7 +195,7 @@ CAM/
 | 4. Frontend | Pantallas conectadas, diseño para celular | **Completa** (sección 12) |
 | 5. Validación y documentación | Pruebas, manuales, respaldo y restauración | **Completa** (sección 13) |
 | 6. Publicación | Render + Neon, HTTPS, prueba desde otro dispositivo | **En curso** (publicada en https://cam-proyectos.onrender.com) |
-| Ampliación | Cambio de titular (D16) y pantalla de auditoría | **Implementada y probada en local** (sección 14) |
+| Ampliación | Cambio de titular (D16) y pantalla de auditoría | **Implementada y publicada** (sección 14) |
 
 ---
 
@@ -270,7 +270,7 @@ Cómo repetirlas (Git Bash, desde la carpeta CAM): `bash pruebas/bd/ejecutar_pru
 - Conjunto de volumen (50 propietarios / 52 adquisiciones / 1.248 cuotas y 200 propietarios) para medir rendimiento (RNF-REN, RNF-ESC). Etapa 5.
 - Respaldo y restauración con `pg_dump` 18. Etapa 5.
 - Ver el diagrama ER dibujado y, si se requiere, exportarlo como imagen.
-- Adaptar el script 00 para Neon (allí no existe el superusuario `postgres`). Etapa 6.
+- ~~Adaptar el script 00 para Neon~~: hecho con `sql/00_neon_crear_base_y_roles.sql`.
 - Contraseñas DEMO conocidas (`CamDemo2026!`, `Propietario2026!`): **no** publicar con ellas.
 
 ---
@@ -430,8 +430,8 @@ Problemas encontrados en la revisión visual y corregidos:
 - Abrir un Excel exportado en **Microsoft Excel** (RNF-POR-01).
 - Medir con una usuaria real el registro de un pago en menos de 2 minutos (RNF-USA-01).
 - Revisión del texto del aviso de privacidad por parte de CAM.
-- Primer commit en Git (con autorización).
-- Etapa 6: publicación, disponibilidad, respaldo en Neon y prueba desde un teléfono real.
+- ~~Primer commit en Git~~: hecho (repositorio en GitHub, rama `main`).
+- Etapa 6: publicación y respaldo en Neon hechos. Faltan la disponibilidad y la prueba desde un teléfono real.
 
 ---
 
@@ -465,7 +465,7 @@ Observación: en una ejecución de la batería API, la prueba de comprobantes fa
 
 ### 14.4. Aplicación a las bases
 - `cam_db` local: respaldo `cam_db_2026-11-04_1134.dump` y script 08 aplicado; se conservaron las 9 adquisiciones y los 54 pagos.
-- Neon (producción): pendiente de autorización, junto con la publicación del código.
+- Neon (producción): respaldo `neon_cam_db_2026-11-04_1152.dump` y script 08 aplicado (comprobado el 2026-11-05: función, columna y 4 vistas presentes). Código publicado en GitHub y desplegado en Render (`/api/salud` responde con la base conectada).
 
 ### 14.5. Pendiente
 - Mora (D6): sigue requiriendo la fecha de vencimiento de cada cuota.
